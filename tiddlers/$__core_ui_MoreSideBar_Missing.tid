@@ -1,0 +1,10 @@
+caption: {{$:/language/SideBar/Missing/Caption}}
+created: 20200526154432015
+list-after: $:/core/ui/SideBar/Journals
+list-before: $:/core/ui/SideBar/Tools
+modified: 20200526215558085
+tags: $:/tags/MoreSideBar $:/tags/SideBar
+title: $:/core/ui/MoreSideBar/Missing
+type: text/vnd.tiddlywiki
+
+<$list filter={{$:/core/Filters/Missing!!filter}} template="$:/core/ui/MissingTemplate"/>
