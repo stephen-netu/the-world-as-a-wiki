@@ -301,6 +301,8 @@ Error message and password prompt
 
 <li>$:/SiteTitle</li>
 
+<li>$:/state/showeditpreview</li>
+
 <li>$:/state/tab-1749438307</li>
 
 <li>$:/state/tab-2065006209</li>
@@ -329,6 +331,8 @@ Error message and password prompt
 
 <li>$:/temp/info-plugin</li>
 
+<li>$:/temp/search</li>
+
 <li>$:/theme</li>
 
 <li>$:/themes/tiddlywiki/snowwhite</li>
@@ -347,11 +351,15 @@ Error message and password prompt
 
 <li>Gods</li>
 
+<li>Ivory</li>
+
 <li>Journals</li>
 
 <li>Locations</li>
 
 <li>Martin</li>
+
+<li>Second Schism</li>
 
 <li>Sleep</li>
 
@@ -10334,7 +10342,7 @@ $:/config/ViewToolbarButtons/Visibility/$(listItem)$
 <div bag="default" created="20200527163223490" modified="20200527163223802" revision="0" title="$:/Gitea/ServerURL" type="text/vnd.tiddlywiki">
 <pre></pre>
 </div>
-<div bag="default" created="20200526143017513" modified="20200527165550261" revision="0" title="$:/GitHub/Branch" type="text/vnd.tiddlywiki">
+<div bag="default" created="20200526143017513" modified="20200527170801575" revision="0" title="$:/GitHub/Branch" type="text/vnd.tiddlywiki">
 <pre>master</pre>
 </div>
 <div bag="default" created="20200526143508552" modified="20200527144831535" revision="0" title="$:/GitHub/Filename" type="text/vnd.tiddlywiki">
@@ -11870,14 +11878,17 @@ exports.context = contextWidget;
 <div bag="default" created="20200526020537291" modified="20200526215558196" revision="0" title="$:/SiteTitle" type="text/vnd.tiddlywiki">
 <pre>The World (as Wiki)</pre>
 </div>
+<div created="20200527170451309" modified="20200527170501856" title="$:/state/showeditpreview">
+<pre>yes</pre>
+</div>
 <div bag="default" created="20200527163314977" modified="20200527163334078" revision="2" title="$:/state/tab-1749438307">
 <pre>$:/core/ui/ControlPanel/Saving</pre>
 </div>
 <div bag="default" created="20200527163334592" modified="20200527165544066" revision="4" title="$:/state/tab-2065006209">
 <pre>$:/core/ui/ControlPanel/Saving/GitHub</pre>
 </div>
-<div bag="default" created="20200527163254567" modified="20200527165414094" revision="3" title="$:/state/tab/sidebar--595412856">
-<pre>$:/core/ui/SideBar/Recent</pre>
+<div bag="default" created="20200527163254567" modified="20200527170815147" revision="3" title="$:/state/tab/sidebar--595412856">
+<pre>$:/.giffmex/sidebar/advancedconfig</pre>
 </div>
 <div bag="default" revision="1" title="$:/status/IsAnonymous">
 <pre>yes</pre>
@@ -11894,7 +11905,7 @@ exports.context = contextWidget;
 <div bag="default" revision="1" title="$:/status/UserName">
 <pre></pre>
 </div>
-<div created="20200527165438589" list="" modified="20200527165438589" title="$:/StoryList">
+<div created="20200527170424062" list="$:/ControlPanel" modified="20200527170817452" title="$:/StoryList">
 <pre></pre>
 </div>
 <div bag="default" created="20200519141000553" list="$:/.giffmex/Buttons/more-tiddler-edit-actions $:/core/ui/Buttons/delete $:/core/ui/Buttons/cancel $:/core/ui/Buttons/save" modified="20200527151321926" revision="0" tags="$:/giffmex/bigeditarea $:/giffmex/stroll" title="$:/tags/EditToolbar" type="text/vnd.tiddlywiki">
@@ -11922,19 +11933,19 @@ exports.context = contextWidget;
         },
         &quot;$:/info/url/full&quot;: {
             &quot;title&quot;: &quot;$:/info/url/full&quot;,
-            &quot;text&quot;: &quot;https://stephen-netu.github.io/&quot;
+            &quot;text&quot;: &quot;file:///C:/Users/Cube_Mk_II/Documents/%23%20Writing/%23%20The%20World/stephen-netu.github.io/index.html&quot;
         },
         &quot;$:/info/url/host&quot;: {
             &quot;title&quot;: &quot;$:/info/url/host&quot;,
-            &quot;text&quot;: &quot;stephen-netu.github.io&quot;
+            &quot;text&quot;: &quot;&quot;
         },
         &quot;$:/info/url/hostname&quot;: {
             &quot;title&quot;: &quot;$:/info/url/hostname&quot;,
-            &quot;text&quot;: &quot;stephen-netu.github.io&quot;
+            &quot;text&quot;: &quot;&quot;
         },
         &quot;$:/info/url/protocol&quot;: {
             &quot;title&quot;: &quot;$:/info/url/protocol&quot;,
-            &quot;text&quot;: &quot;https:&quot;
+            &quot;text&quot;: &quot;file:&quot;
         },
         &quot;$:/info/url/port&quot;: {
             &quot;title&quot;: &quot;$:/info/url/port&quot;,
@@ -11942,7 +11953,7 @@ exports.context = contextWidget;
         },
         &quot;$:/info/url/pathname&quot;: {
             &quot;title&quot;: &quot;$:/info/url/pathname&quot;,
-            &quot;text&quot;: &quot;/&quot;
+            &quot;text&quot;: &quot;/C:/Users/Cube_Mk_II/Documents/%23%20Writing/%23%20The%20World/stephen-netu.github.io/index.html&quot;
         },
         &quot;$:/info/url/search&quot;: {
             &quot;title&quot;: &quot;$:/info/url/search&quot;,
@@ -11950,7 +11961,7 @@ exports.context = contextWidget;
         },
         &quot;$:/info/url/origin&quot;: {
             &quot;title&quot;: &quot;$:/info/url/origin&quot;,
-            &quot;text&quot;: &quot;https://stephen-netu.github.io&quot;
+            &quot;text&quot;: &quot;file://&quot;
         },
         &quot;$:/info/browser/screen/width&quot;: {
             &quot;title&quot;: &quot;$:/info/browser/screen/width&quot;,
@@ -11966,6 +11977,9 @@ exports.context = contextWidget;
         }
     }
 }</pre>
+</div>
+<div created="20200527170422187" modified="20200527170422635" title="$:/temp/search">
+<pre>martin</pre>
 </div>
 <div bag="default" created="20200526011914436" modified="20200527151408516" revision="0" title="$:/theme" type="text/vnd.tiddlywiki">
 <pre>$:/themes/tiddlywiki/snowwhite</pre>
@@ -12121,6 +12135,9 @@ Each City of Epoch had a population of or greater than one million people at one
 <div bag="default" created="20200526160751335" modified="20200526215558287" revision="0" tags="[[The Colonnade]]" title="Gods" type="text/vnd.tiddlywiki">
 <pre>Hi, [[Martin]]!  This is me showing this off.</pre>
 </div>
+<div created="20200527170654683" modified="20200527170654683" title="Ivory">
+<pre></pre>
+</div>
 <div bag="default" created="20200526015903836" list-before="$:/core/ui/SideBar/Tools" modified="20200526215558310" revision="0" tags="$:/tags/SideBar" title="Journals" type="text/vnd.tiddlywiki">
 <pre>&lt;&lt;toc-selective-expandable 'Journal' sort[title]&gt;&gt;</pre>
 </div>
@@ -12146,8 +12163,11 @@ Each City of Epoch had a population of or greater than one million people at one
 * [[The Wayward Pass]]
 </pre>
 </div>
-<div bag="default" created="20200526160925617" modified="20200526215558455" revision="0" title="Martin" type="text/vnd.tiddlywiki">
-<pre>So now I can create your article or whatever!  Neat, right?</pre>
+<div bag="default" created="20200526160925617" modified="20200527170654682" revision="0" title="Martin" type="text/vnd.tiddlywiki">
+<pre>Martin is one of the first [[Yugils|Yugil]] to have developed from the remnants of the [[ivory|Ivory]] leftover from the [[Second Schism]].</pre>
+</div>
+<div created="20200527170654683" modified="20200527170654683" title="Second Schism">
+<pre></pre>
 </div>
 <div bag="default" created="20200526172603018" modified="20200526215558493" revision="0" tags="" title="Sleep" type="text/vnd.tiddlywiki">
 <pre>The denizens of [[the World]] do not require sleep.  Most [[species|Species]] do some kind of meditation or simply rest during the darker hours of the day, usually when only the [[Pale Sun]] is visible in the sky.
