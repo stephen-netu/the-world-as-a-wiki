@@ -1,8 +1,0 @@
-created: 20200526015903836
-list-before: $:/core/ui/SideBar/Tools
-modified: 20200526215558310
-tags: $:/tags/SideBar
-title: Journals
-type: text/vnd.tiddlywiki
-
-<<toc-selective-expandable 'Journal' sort[title]>>
