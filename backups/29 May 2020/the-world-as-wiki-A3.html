@@ -219,8 +219,6 @@ Error message and password prompt
 
 <li>$:/config/SaveTrailPlugin/enable-drafts</li>
 
-<li>$:/config/Snapshot/BackupLocation</li>
-
 <li>$:/config/Tiddlers/TitleLinks</li>
 
 <li>$:/config/ViewToolbarButtons/Visibility/$:/.giffmex/ViewToolbar/new-note-here</li>
@@ -291,8 +289,6 @@ Error message and password prompt
 
 <li>$:/plugins/sq/Stories</li>
 
-<li>$:/plugins/tesseract/snapshot</li>
-
 <li>$:/plugins/tiddlywiki/highlight</li>
 
 <li>$:/SiteSubtitle</li>
@@ -300,8 +296,6 @@ Error message and password prompt
 <li>$:/SiteTitle</li>
 
 <li>$:/state/plugin-info--1891134114-$:/plugins/tiddlywiki/savetrail--798339629</li>
-
-<li>$:/state/plugin-info-1630434430-$:/plugins/tesseract/snapshot---1192447270</li>
 
 <li>$:/state/showeditpreview</li>
 
@@ -561,13 +555,9 @@ Error message and password prompt
 
 <li>Draft of 'Alma'</li>
 
-<li>Draft of 'Table of Contents'</li>
-
-<li>Empty</li>
+<li>Draft of 'New Tiddler'</li>
 
 <li>Fundamental Forces</li>
-
-<li>Journal</li>
 
 <li>Journals</li>
 
@@ -576,12 +566,6 @@ Error message and password prompt
 <li>Phoenix Gate</li>
 
 <li>Table of Contents</li>
-
-<li>TableOfContents</li>
-
-<li>testing.</li>
-
-<li>Untitled</li>
 
 <li>Wicks</li>
 
@@ -1047,9 +1031,6 @@ $:/config/ViewToolbarButtons/Visibility/$(listItem)$
 </div>
 <div created="20200529184359084" modified="20200529184359084" title="$:/config/SaveTrailPlugin/enable-drafts">
 <pre>yes</pre>
-</div>
-<div created="20200529190800918" modified="20200529190800918" title="$:/config/Snapshot/BackupLocation">
-<pre>C:\Users\Cube_Mk_II\Documents\# Writing\# The World\stephen-netu.github.io\backups</pre>
 </div>
 <div bag="default" created="20200414150157768" modified="20200521145815908" revision="0" tags="$:/giffmex/stroll" title="$:/config/Tiddlers/TitleLinks" type="text/vnd.tiddlywiki">
 <pre>no</pre>
@@ -10537,8 +10518,8 @@ $:/config/ViewToolbarButtons/Visibility/$(listItem)$
 &lt;/$reveal&gt;
 &lt;/div&gt;</pre>
 </div>
-<div created="20200529121529148" modified="20200529184728558" title="$:/DefaultTiddlers">
-<pre>Empty</pre>
+<div created="20200529121529148" modified="20200529142616322" title="$:/DefaultTiddlers">
+<pre>[[Empty Tiddlers]]</pre>
 </div>
 <div created="20200529122424733" modified="20200529122425142" title="$:/GitHub/Branch">
 <pre>pages</pre>
@@ -10555,11 +10536,16 @@ $:/config/ViewToolbarButtons/Visibility/$(listItem)$
 <div created="20200529121643658" modified="20200529121645477" title="$:/GitHub/Username">
 <pre>stephen-netu</pre>
 </div>
-<div status="complete" title="$:/Import">
-<pre>The following tiddlers were imported:
-
-# [[Untitled]]
-# [[$:/plugins/tesseract/snapshot]]</pre>
+<div plugin-type="import" status="pending" title="$:/Import" type="application/json">
+<pre>{
+    &quot;tiddlers&quot;: {
+        &quot;Untitled&quot;: {
+            &quot;title&quot;: &quot;Untitled&quot;,
+            &quot;text&quot;: &quot;savetra&quot;,
+            &quot;type&quot;: &quot;text/plain&quot;
+        }
+    }
+}</pre>
 </div>
 <div title="$:/isEncrypted">
 <pre>no</pre>
@@ -11909,46 +11895,6 @@ exports.context = contextWidget;
 }
 }</pre>
 </div>
-<div author="Riz" bag="default" core-version="5.1.16" created="20180824091547423" description="Snapshot: Timestamped backups" list="readme" modified="20180824091558164" plugin-type="plugin" revision="1" title="$:/plugins/tesseract/snapshot" type="application/json" version="1.0.5">
-<pre>{
-    &quot;tiddlers&quot;: {
-        &quot;$:/core/ui/ControlPanel/Saving/Snapshot&quot;: {
-            &quot;text&quot;: &quot;| &lt;$link to=\&quot;$:/config/Snapshot/BackupLocation\&quot;&gt;Backup Location&lt;/$link&gt;|&lt;$edit-text tiddler=\&quot;$:/config/Snapshot/BackupLocation\&quot; default=\&quot;\&quot; tag=\&quot;input\&quot;/&gt;|\n| &lt;$link to=\&quot;$:/config/Snapshot/SuffixFormat\&quot;&gt;Suffix Format&lt;/$link&gt;|&lt;$edit-text tiddler=\&quot;$:/config/Snapshot/SuffixFormat\&quot; default=\&quot;\&quot; tag=\&quot;input\&quot;/&gt;|\n\n&quot;,
-            &quot;title&quot;: &quot;$:/core/ui/ControlPanel/Saving/Snapshot&quot;,
-            &quot;tags&quot;: &quot;$:/tags/ControlPanel/Saving&quot;,
-            &quot;modified&quot;: &quot;20180824070405084&quot;,
-            &quot;created&quot;: &quot;20180824055743178&quot;,
-            &quot;caption&quot;: &quot;Snapshot&quot;
-        },
-        &quot;$:/core/modules/savers/tiddlyfoxBackup.js&quot;: {
-            &quot;text&quot;: &quot;/*\\\ntitle: $:/core/modules/savers/tiddlyBackup.js\ntype: application/javascript\nmodule-type: saver\n\nHandles saving changes via the TiddlyFox file extension\n\n\\*/\n(function() {\n\n    /*jslint node: true, browser: true */\n    /*global $tw: false, netscape: false, Components: false */\n    \&quot;use strict\&quot;;\n\n    var TiddlyBackup = function(wiki) {};\n\n    function cleanPath(pathname) {\n        // Replace file://localhost/ with file:///\n        if (pathname.indexOf(\&quot;file://localhost/\&quot;) === 0) {\n            pathname = \&quot;file://\&quot; + pathname.substr(16);\n        }\n        // Windows path file:///x:/blah/blah --&gt; x:\\blah\\blah\n        if (/^file\\:\\/\\/\\/[A-Z]\\:\\//i.test(pathname)) {\n            // Remove the leading slash and convert slashes to backslashes\n            pathname = pathname.substr(8).replace(/\\//g, \&quot;\\\\\&quot;);\n            // Firefox Windows network path file://///server/share/blah/blah --&gt; //server/share/blah/blah\n        } else if (pathname.indexOf(\&quot;file://///\&quot;) === 0) {\n            pathname = \&quot;\\\\\\\\\&quot; + unescape(pathname.substr(10)).replace(/\\//g, \&quot;\\\\\&quot;);\n            // Mac/Unix local path file:///path/path --&gt; /path/path\n        } else if (pathname.indexOf(\&quot;file:///\&quot;) === 0) {\n            pathname = unescape(pathname.substr(7));\n            // Mac/Unix local path file:/path/path --&gt; /path/path\n        } else if (pathname.indexOf(\&quot;file:/\&quot;) === 0) {\n            pathname = unescape(pathname.substr(5));\n            // Otherwise Windows networth path file://server/share/path/path --&gt; \\\\server\\share\\path\\path\n        } else {\n            pathname = \&quot;\\\\\\\\\&quot; + unescape(pathname.substr(7)).replace(new RegExp(\&quot;/\&quot;, \&quot;g\&quot;), \&quot;\\\\\&quot;);\n        }\n        return pathname;\n    }\n\n    function resolveRelativePath(base, relative) {\n        var stack = base.split(\&quot;/\&quot;),\n            parts = relative.split(\&quot;/\&quot;);\n        stack.pop(); // remove current file name (or empty string)\n        // (omit if \&quot;base\&quot; is the current folder without trailing slash)\n        for (var i = 0; i &lt; parts.length; i++) {\n            if (parts[i] == \&quot;.\&quot;)\n                continue;\n            if (parts[i] == \&quot;..\&quot;)\n                stack.pop();\n            else\n                stack.push(parts[i]);\n        }\n        return stack.join(\&quot;/\&quot;);\n    }\n\n    TiddlyBackup.prototype.save = function(text, method, callback) {\n        var messageBox = document.getElementById(\&quot;tiddlyfox-message-box\&quot;);\n        if (messageBox) {\n            // Get the pathname of this document\n            var windowlocation = document.location.toString().split(\&quot;#\&quot;)[0];\n            var backuplocation = $tw.wiki.getTiddlerText(\&quot;$:/config/Snapshot/BackupLocation\&quot;);\n            var filename = window.location.pathname.split(\&quot;/\&quot;).slice(-1)[0];\n            var pathname;\n            // Check if user has specified a backup location\n            if (typeof backuplocation !== \&quot;undefined\&quot; &amp;&amp; backuplocation !== \&quot;\&quot;) {\n                // Check if the back up location ends in a \&quot;/\&quot; and if NOT, add a \&quot;/\&quot;\n                if (backuplocation.substr(-1) != '/') backuplocation += '/';\n                if (backuplocation.charAt(0) == \&quot;.\&quot;) {\n                    // resolve the relative path\n                    backuplocation = resolveRelativePath(cleanPath(windowlocation), backuplocation);\n                }\n                pathname = backuplocation + filename;\n            } else {\n                pathname = cleanPath(windowlocation);\n\n            }\n            // Create the message element and put it in the message box\n            var message = document.createElement(\&quot;div\&quot;);\n\n            var df = $tw.utils.formatDateString(new Date(), $tw.wiki.getTiddlerText(\&quot;$:/config/Snapshot/SuffixFormat\&quot;) || \&quot;0DD-0MM-YYYY--0hh-0mm-0ss\&quot;);\n            pathname = pathname.substring(0, pathname.lastIndexOf(\&quot;.\&quot;)) + '--' + df + pathname.substring(pathname.lastIndexOf(\&quot;.\&quot;));\n            message.setAttribute(\&quot;data-tiddlyfox-path\&quot;, decodeURIComponent(pathname));\n            message.setAttribute(\&quot;data-tiddlyfox-content\&quot;, text);\n            messageBox.appendChild(message);\n            // Add an event handler for when the file has been saved\n            message.addEventListener(\&quot;tiddlyfox-have-saved-file\&quot;, function(event) {\n                callback(null);\n            }, false);\n            // Create and dispatch the custom event to the extension\n            var event = document.createEvent(\&quot;Events\&quot;);\n            event.initEvent(\&quot;tiddlyfox-save-file\&quot;, true, false);\n            message.dispatchEvent(event);\n            return true;\n        } else {\n            return false;\n        }\n    };\n\n    /*\n    Information about this saver\n    */\n    TiddlyBackup.prototype.info = {\n        name: \&quot;tiddlyfox\&quot;,\n        priority: 1500,\n        capabilities: [\&quot;backup\&quot;]\n    };\n\n    /*\n    Static method that returns true if this saver is capable of working\n    */\n    exports.canSave = function(wiki) {\n        return true;\n    };\n\n    /*\n    Create an instance of this saver\n    */\n    exports.create = function(wiki) {\n        return new TiddlyBackup(wiki);\n    };\n\n})();&quot;,
-            &quot;type&quot;: &quot;application/javascript&quot;,
-            &quot;title&quot;: &quot;$:/core/modules/savers/tiddlyfoxBackup.js&quot;,
-            &quot;tags&quot;: &quot;&quot;,
-            &quot;module-type&quot;: &quot;saver&quot;,
-            &quot;modified&quot;: &quot;20180924034247998&quot;,
-            &quot;created&quot;: &quot;20180820110234866&quot;
-        },
-        &quot;$:/core/modules/saver-handler.js&quot;: {
-            &quot;text&quot;: &quot;/*\\\ntitle: $:/core/modules/saver-handler.js\ntype: application/javascript\nmodule-type: global\n\nThe saver handler tracks changes to the store and handles saving the entire wiki via saver modules.\n\n\\*/\n(function(){\n\n/*jslint node: true, browser: true */\n/*global $tw: false */\n\&quot;use strict\&quot;;\n\n/*\nInstantiate the saver handler with the following options:\nwiki: wiki to be synced\ndirtyTracking: true if dirty tracking should be performed\n*/\nfunction SaverHandler(options) {\n\tvar self = this;\n\tthis.wiki = options.wiki;\n\tthis.dirtyTracking = options.dirtyTracking;\n\tthis.pendingAutoSave = false;\n\t// Make a logger\n\tthis.logger = new $tw.utils.Logger(\&quot;saver-handler\&quot;);\n\t// Initialise our savers\n\tif($tw.browser) {\n\t\tthis.initSavers();\n\t}\n\t// Only do dirty tracking if required\n\tif($tw.browser &amp;&amp; this.dirtyTracking) {\n\t\t// Compile the dirty tiddler filter\n\t\tthis.filterFn = this.wiki.compileFilter(this.wiki.getTiddlerText(this.titleSyncFilter));\n\t\t// Count of changes that have not yet been saved\n\t\tthis.numChanges = 0;\n\t\t// Listen out for changes to tiddlers\n\t\tthis.wiki.addEventListener(\&quot;change\&quot;,function(changes) {\n\t\t\t// Filter the changes so that we only count changes to tiddlers that we care about\n\t\t\tvar filteredChanges = self.filterFn.call(self.wiki,function(iterator) {\n\t\t\t\t$tw.utils.each(changes,function(change,title) {\n\t\t\t\t\tvar tiddler = self.wiki.getTiddler(title);\n\t\t\t\t\titerator(tiddler,title);\n\t\t\t\t});\n\t\t\t});\n\t\t\t// Adjust the number of changes\n\t\t\tself.numChanges += filteredChanges.length;\n\t\t\tself.updateDirtyStatus();\n\t\t\t// Do any autosave if one is pending and there's no more change events\n\t\t\tif(self.pendingAutoSave &amp;&amp; self.wiki.getSizeOfTiddlerEventQueue() === 0) {\n\t\t\t\t// Check if we're dirty\n\t\t\t\tif(self.numChanges &gt; 0) {\n\t\t\t\t\tself.saveWiki({\n\t\t\t\t\t\tmethod: \&quot;autosave\&quot;,\n\t\t\t\t\t\tdownloadType: \&quot;text/plain\&quot;\n\t\t\t\t\t});\n\t\t\t\t}\n\t\t\t\tself.pendingAutoSave = false;\n\t\t\t}\n\t\t});\n\t\t// Listen for the autosave event\n\t\t$tw.rootWidget.addEventListener(\&quot;tm-auto-save-wiki\&quot;,function(event) {\n\t\t\t// Do the autosave unless there are outstanding tiddler change events\n\t\t\tif(self.wiki.getSizeOfTiddlerEventQueue() === 0) {\n\t\t\t\t// Check if we're dirty\n\t\t\t\tif(self.numChanges &gt; 0) {\n\t\t\t\t\tself.saveWiki({\n\t\t\t\t\t\tmethod: \&quot;autosave\&quot;,\n\t\t\t\t\t\tdownloadType: \&quot;text/plain\&quot;\n\t\t\t\t\t});\n\t\t\t\t}\n\t\t\t} else {\n\t\t\t\t// Otherwise put ourselves in the \&quot;pending autosave\&quot; state and wait for the change event before we do the autosave\n\t\t\t\tself.pendingAutoSave = true;\n\t\t\t}\n\t\t});\n\t\t// Set up our beforeunload handler\n\t\t$tw.addUnloadTask(function(event) {\n\t\t\tvar confirmationMessage;\n\t\t\tif(self.isDirty()) {\n\t\t\t\tconfirmationMessage = $tw.language.getString(\&quot;UnsavedChangesWarning\&quot;);\n\t\t\t\tevent.returnValue = confirmationMessage; // Gecko\n\t\t\t}\n\t\t\treturn confirmationMessage;\n\t\t});\n\t}\n\t// Install the save action handlers\n\tif($tw.browser) {\n\t\t$tw.rootWidget.addEventListener(\&quot;tm-save-wiki\&quot;,function(event) {\n\t\t\tself.saveWiki({\n\t\t\t\ttemplate: event.param,\n\t\t\t\tdownloadType: \&quot;text/plain\&quot;,\n\t\t\t\tvariables: event.paramObject\n\t\t\t});\n\t\t});\n\t\t$tw.rootWidget.addEventListener(\&quot;tm-download-file\&quot;,function(event) {\n\t\t\tself.saveWiki({\n\t\t\t\tmethod: \&quot;download\&quot;,\n\t\t\t\ttemplate: event.param,\n\t\t\t\tdownloadType: \&quot;text/plain\&quot;,\n\t\t\t\tvariables: event.paramObject\n\t\t\t});\n\t\t});\n              $tw.rootWidget.addEventListener(\&quot;tm-backup-wiki\&quot;,function(event) {\n\t\t\tself.saveWiki({\n\t\t\t\tmethod: \&quot;backup\&quot;,\n\t\t\t\ttemplate: event.param,\n\t\t\t\tdownloadType: \&quot;text/plain\&quot;,\n\t\t\t\tvariables: event.paramObject\n\t\t\t});\n\t\t});\n\t}\n}\n\nSaverHandler.prototype.titleSyncFilter = \&quot;$:/config/SaverFilter\&quot;;\nSaverHandler.prototype.titleAutoSave = \&quot;$:/config/AutoSave\&quot;;\nSaverHandler.prototype.titleSavedNotification = \&quot;$:/language/Notifications/Save/Done\&quot;;\n\n/*\nSelect the appropriate saver modules and set them up\n*/\nSaverHandler.prototype.initSavers = function(moduleType) {\n\tmoduleType = moduleType || \&quot;saver\&quot;;\n\t// Instantiate the available savers\n\tthis.savers = [];\n\tvar self = this;\n\t$tw.modules.forEachModuleOfType(moduleType,function(title,module) {\n\t\tif(module.canSave(self)) {\n\t\t\tself.savers.push(module.create(self.wiki));\n\t\t}\n\t});\n\t// Sort the savers into priority order\n\tthis.savers.sort(function(a,b) {\n\t\tif(a.info.priority &lt; b.info.priority) {\n\t\t\treturn -1;\n\t\t} else {\n\t\t\tif(a.info.priority &gt; b.info.priority) {\n\t\t\t\treturn +1;\n\t\t\t} else {\n\t\t\t\treturn 0;\n\t\t\t}\n\t\t}\n\t});\n};\n\n/*\nSave the wiki contents. Options are:\n\tmethod: \&quot;save\&quot;, \&quot;autosave\&quot; or \&quot;download\&quot;\n\ttemplate: the tiddler containing the template to save\n\tdownloadType: the content type for the saved file\n*/\nSaverHandler.prototype.saveWiki = function(options) {\n\toptions = options || {};\n\tvar self = this,\n\t\tmethod = options.method || \&quot;save\&quot;,\n\t\tvariables = options.variables || {},\n\t\ttemplate = options.template || \&quot;$:/core/save/all\&quot;,\n\t\tdownloadType = options.downloadType || \&quot;text/plain\&quot;,\n\t\ttext = this.wiki.renderTiddler(downloadType,template,options),\n\t\tcallback = function(err) {\n\t\t\tif(err) {\n\t\t\t\talert($tw.language.getString(\&quot;Error/WhileSaving\&quot;) + \&quot;:\\n\\n\&quot; + err);\n\t\t\t} else {\n\t\t\t\t// Clear the task queue if we're saving (rather than downloading)\n\t\t\t\tif(method !== \&quot;download\&quot;) {\n\t\t\t\t\tself.numChanges = 0;\n\t\t\t\t\tself.updateDirtyStatus();\n\t\t\t\t}\n\t\t\t\t$tw.notifier.display(self.titleSavedNotification);\n\t\t\t\tif(options.callback) {\n\t\t\t\t\toptions.callback();\n\t\t\t\t}\n\t\t\t}\n\t\t};\n\t// Ignore autosave if disabled\n\tif(method === \&quot;autosave\&quot; &amp;&amp; this.wiki.getTiddlerText(this.titleAutoSave,\&quot;yes\&quot;) !== \&quot;yes\&quot;) {\n\t\treturn false;\n\t}\n\t// Call the highest priority saver that supports this method\n\tfor(var t=this.savers.length-1; t&gt;=0; t--) {\n\t\tvar saver = this.savers[t];\n\t\tif(saver.info.capabilities.indexOf(method) !== -1 &amp;&amp; saver.save(text,method,callback,{variables: {filename: variables.filename}})) {\n\t\t\tthis.logger.log(\&quot;Saving wiki with method\&quot;,method,\&quot;through saver\&quot;,saver.info.name);\n\t\t\treturn true;\n\t\t}\n\t}\n\treturn false;\n};\n\n/*\nChecks whether the wiki is dirty (ie the window shouldn't be closed)\n*/\nSaverHandler.prototype.isDirty = function() {\n\treturn this.numChanges &gt; 0;\n};\n\n/*\nUpdate the document body with the class \&quot;tc-dirty\&quot; if the wiki has unsaved/unsynced changes\n*/\nSaverHandler.prototype.updateDirtyStatus = function() {\n\tif($tw.browser) {\n\t\t$tw.utils.toggleClass(document.body,\&quot;tc-dirty\&quot;,this.isDirty());\n\t}\n};\n\nexports.SaverHandler = SaverHandler;\n\n})();\n&quot;,
-            &quot;type&quot;: &quot;application/javascript&quot;,
-            &quot;title&quot;: &quot;$:/core/modules/saver-handler.js&quot;,
-            &quot;revision&quot;: &quot;0&quot;,
-            &quot;module-type&quot;: &quot;global&quot;,
-            &quot;modified&quot;: &quot;20180824092010979&quot;,
-            &quot;created&quot;: &quot;20180820104549261&quot;,
-            &quot;bag&quot;: &quot;default&quot;
-        },
-        &quot;$:/plugins/tesseract/snapshot/readme&quot;: {
-            &quot;created&quot;: &quot;20180824091715150&quot;,
-            &quot;text&quot;: &quot;Provides a new message ''tm-backup-wiki'' which can be triggered by button widget/any message triggering widget. Once triggered, it will save a snapshot of the wiki with a timestamp in the format `0DD-0MM-YYYY--0hh-0mm-0ss` to the same location as the original file. The default location and timestamp format can be changed under Control Panel&gt;Saving&gt;Snapshot. Timestamps respect the format of `now` macro. \n\nEg:\n\n```\n&lt;$button message=\&quot;tm-backup-wiki\&quot;&gt; Back me up &lt;/$button&gt;\n```\n\nAnd my wife hates me for it.&quot;,
-            &quot;title&quot;: &quot;$:/plugins/tesseract/snapshot/readme&quot;,
-            &quot;tags&quot;: &quot;&quot;,
-            &quot;modified&quot;: &quot;20180924034613226&quot;
-        }
-    }
-}</pre>
-</div>
 <div author="Joao Bolila" created="20200502181642803" dependents="" description="Highlight.js syntax highlighting" list="readme usage howto license" modified="20200521145819289" name="Highlight" plugin-type="plugin" tags="$:/giffmex/stroll" title="$:/plugins/tiddlywiki/highlight" type="application/json" version="5.1.22">
 <pre>{
     &quot;tiddlers&quot;: {
@@ -12028,9 +11974,6 @@ exports.context = contextWidget;
 <div created="20200529184356365" modified="20200529184441524" title="$:/state/plugin-info--1891134114-$:/plugins/tiddlywiki/savetrail--798339629">
 <pre>contents</pre>
 </div>
-<div created="20200529190710246" modified="20200529190710787" title="$:/state/plugin-info-1630434430-$:/plugins/tesseract/snapshot---1192447270">
-<pre>readme</pre>
-</div>
 <div created="20200529163502391" modified="20200529163502391" title="$:/state/showeditpreview">
 <pre>yes</pre>
 </div>
@@ -12046,17 +11989,17 @@ exports.context = contextWidget;
 <div created="20200529142840259" modified="20200529142842415" title="$:/state/tab-1163638994">
 <pre>$:/core/ui/MoreSideBar/Plugins/Theme</pre>
 </div>
-<div created="20200529121639476" modified="20200529191727613" title="$:/state/tab-1749438307">
-<pre>$:/core/ui/ControlPanel/KeyboardShortcuts</pre>
+<div created="20200529121639476" modified="20200529184328359" title="$:/state/tab-1749438307">
+<pre>$:/core/ui/ControlPanel/Plugins</pre>
 </div>
-<div created="20200529121641156" modified="20200529191723050" title="$:/state/tab-2065006209">
-<pre>$:/core/ui/ControlPanel/Saving/Snapshot</pre>
+<div created="20200529121641156" modified="20200529184326932" title="$:/state/tab-2065006209">
+<pre>$:/core/ui/ControlPanel/Saving/General</pre>
 </div>
-<div created="20200529122155541" modified="20200529185616922" title="$:/state/tab/moresidebar-1850697562">
-<pre>$:/core/ui/MoreSideBar/Tags</pre>
+<div created="20200529122155541" modified="20200529142837673" title="$:/state/tab/moresidebar-1850697562">
+<pre>$:/core/ui/MoreSideBar/Plugins</pre>
 </div>
-<div created="20200529121532927" modified="20200529185615261" title="$:/state/tab/sidebar--595412856">
-<pre>$:/core/ui/SideBar/More</pre>
+<div created="20200529121532927" modified="20200529182913449" title="$:/state/tab/sidebar--595412856">
+<pre>$:/core/ui/SideBar/Recent</pre>
 </div>
 <div created="20200529142914956" modified="20200529143025924" title="$:/state/tabs/controlpanel/toolbars-1345989671">
 <pre>$:/core/ui/ControlPanel/Toolbars/ViewToolbar</pre>
@@ -12064,7 +12007,7 @@ exports.context = contextWidget;
 <div title="$:/status/RequireReloadDueToPluginChange">
 <pre>no</pre>
 </div>
-<div list="Empty" title="$:/StoryList">
+<div created="20200529184506880" list="$:/ControlPanel" modified="20200529184539563" title="$:/StoryList">
 <pre></pre>
 </div>
 <div created="20200519141000553" list="$:/.giffmex/Buttons/more-tiddler-edit-actions $:/core/ui/Buttons/delete $:/core/ui/Buttons/cancel $:/core/ui/Buttons/save" modified="20200521145647980" tags="$:/giffmex/bigeditarea $:/giffmex/stroll" title="$:/tags/EditToolbar">
@@ -13090,7 +13033,7 @@ This plugin also requires the JSZip plugin ([[$:/plugins/tiddlywiki/jszip]]) to 
 <div created="20200529184342330" modified="20200529184343461" title="$:/temp/RemoteAssetSearch/$:/config/OfficialPluginLibrary">
 <pre>savetra</pre>
 </div>
-<div created="20200529142601829" modified="20200529184556159" title="$:/temp/search">
+<div created="20200529142601829" modified="20200529184311400" title="$:/temp/search">
 <pre></pre>
 </div>
 <div created="20200529184341522" modified="20200529184341522" tags="$:/tags/ServerConnection" title="$:/temp/ServerConnection/https://tiddlywiki.com/library/v5.1.22/index.html" url="https://tiddlywiki.com/library/v5.1.22/index.html">
@@ -13262,15 +13205,8 @@ Not all gods were created of [[All Good Creation]] or from the [[End]].  Some go
 
 Alma was the first [[god|Gods]] to ascend from the [[Real]] itself.  </pre>
 </div>
-<div bag="default" caption="Contents" created="20200526013243547" draft.of="Table of Contents" draft.title="Table of Contents" list-after="$:/core/ui/SideBar/Open" modified="20200529184715952" revision="0" tags="$:/tags/SideBar" title="Draft of 'Table of Contents'" type="text/vnd.tiddlywiki">
-<pre>&lt;div class=&quot;tc-table-of-contents&quot;&gt;
-
-&lt;&lt;toc-selective-expandable 'TableOfContents' sort[ind]&gt;&gt;
-
-&lt;/div&gt;</pre>
-</div>
-<div created="20200529184640533" list-before="$:/core/ui/SideBar/Tools" modified="20200529184922775" tags="$:/tags/SideBar" title="Empty">
-<pre>&lt;&lt;list-links &quot;[!is[system]!has[text]!has[_canonical_uri]sort[created]]&quot;&gt;&gt;</pre>
+<div created="20200529184444380" draft.of="New Tiddler" draft.title="tasdfaasdfas" modified="20200529184448556" tags="" title="Draft of 'New Tiddler'">
+<pre></pre>
 </div>
 <div created="20200528035135760" modified="20200529164029843" tags="TableOfContents" title="Fundamental Forces" type="application/x-tiddler">
 <pre>| ''Name of Force'' | ''Energy Type'' | ''Origination'' |
@@ -13280,9 +13216,6 @@ Alma was the first [[god|Gods]] to ascend from the [[Real]] itself.  </pre>
 | the [[Brink]] | Nexal | [[Nexus]] |
 | the [[Worldsong]] | Voice | the [[Worldsong]]^^*^^ |
 ^^*^^The Worldsong itself always has been but this is, as might be expected, a point of contention among scholars.</pre>
-</div>
-<div color="#004000" created="20200529185636709" modified="20200529185636709" title="Journal">
-<pre></pre>
 </div>
 <div bag="default" created="20200526015903836" list-before="$:/core/ui/SideBar/Tools" modified="20200526215558310" revision="0" tags="$:/tags/SideBar" title="Journals" type="text/vnd.tiddlywiki">
 <pre>&lt;&lt;toc-selective-expandable 'Journal' sort[title]&gt;&gt;</pre>
@@ -13328,15 +13261,6 @@ The golden man snarled, spat, and struck her down in a singular blow.  She fell 
 &lt;&lt;toc-selective-expandable 'TableOfContents' sort[ind]&gt;&gt;
 
 &lt;/div&gt;</pre>
-</div>
-<div color="#004080" created="20200529185640783" modified="20200529185644192" title="TableOfContents">
-<pre></pre>
-</div>
-<div created="20200529191738632" modified="20200529191741093" tags="" title="testing.">
-<pre></pre>
-</div>
-<div title="Untitled" type="text/plain">
-<pre>savetra</pre>
 </div>
 <div created="20200529182920197" modified="20200529182945214" tags="" title="Wicks">
 <pre>A pejorative for those who cannot manifest or perceive the [[Complex]].</pre>
