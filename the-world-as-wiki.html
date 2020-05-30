@@ -11507,7 +11507,7 @@ html body.tc-body {
 <div title="$:/status/RequireReloadDueToPluginChange">
 <pre>no</pre>
 </div>
-<div list="[[Daily Notes]]" title="$:/StoryList">
+<div created="20200530214001656" list="[[Daily Notes]] [[To-do &amp; Empty]]" modified="20200530214001656" title="$:/StoryList">
 <pre></pre>
 </div>
 <div created="20200530021747415" list="$:/core/ui/EditorToolbar/paint $:/core/ui/EditorToolbar/opacity $:/core/ui/EditorToolbar/line-width $:/core/ui/EditorToolbar/rotate-left $:/core/ui/EditorToolbar/clear $:/core/ui/EditorToolbar/bold $:/core/ui/EditorToolbar/italic $:/core/ui/EditorToolbar/strikethrough $:/core/ui/EditorToolbar/underline $:/core/ui/EditorToolbar/superscript $:/core/ui/EditorToolbar/subscript $:/core/ui/EditorToolbar/mono-line $:/core/ui/EditorToolbar/linkify $:/core/ui/EditorToolbar/transcludify $:/core/ui/EditorToolbar/mono-block $:/core/ui/EditorToolbar/quote $:/core/ui/EditorToolbar/list-bullet $:/core/ui/EditorToolbar/list-number $:/core/ui/EditorToolbar/heading-1 $:/core/ui/EditorToolbar/heading-2 $:/core/ui/EditorToolbar/heading-3 $:/core/ui/EditorToolbar/heading-4 $:/core/ui/EditorToolbar/heading-5 $:/core/ui/EditorToolbar/heading-6 $:/core/ui/EditorToolbar/link $:/core/ui/EditorToolbar/excise $:/core/ui/EditorToolbar/picture $:/core/ui/EditorToolbar/stamp $:/core/ui/EditorToolbar/size $:/core/ui/EditorToolbar/editor-height $:/core/ui/EditorToolbar/more $:/core/ui/EditorToolbar/preview-type $:/core/ui/EditorToolbar/preview" modified="20200530194854635" title="$:/tags/EditorToolbar">
@@ -12859,7 +12859,7 @@ Not all gods were created of [[All Good Creation]] or from the [[End|The End]]. 
 
 </pre>
 </div>
-<div created="20200530171327542" modified="20200530210759512" tags="To-do" title="Daily Notes">
+<div created="20200530171327542" modified="20200530215112381" title="Daily Notes">
 <pre>&lt;$list filter=&quot;[tag[Daily Notes]!sort[title]]&quot;&gt;
 
 !! &lt;$view field=&quot;title&quot; /&gt;
@@ -12988,14 +12988,17 @@ The [[Articles of Advantage]] were first published by [[Oon]] shortly after the 
 
 </pre>
 </div>
-<div caption="To-do" created="20200529184640533" list-before="$:/core/ui/SideBar/Tools" modified="20200530210743324" tags="$:/tags/SideBar" title="To-do &amp; Empty">
-<pre>__''To-do''__
-&lt;$list filter=&quot;[tag[To-do]putfirst[Daily Notes]]&quot;&gt;
+<div caption="To-do" created="20200529184640533" list-before="$:/core/ui/SideBar/Tools" modified="20200530215145996" tags="$:/tags/SideBar" title="To-do &amp; Empty">
+<pre>[[Daily Notes]]
+
+&lt;br&gt;
+__''To-do''__
+&lt;$list filter=&quot;[tag[To-do]!sort[created]]&quot;&gt;
 &lt;br&gt;&lt;$link&gt;&lt;$transclude field=&quot;title&quot;/&gt;&lt;/$link&gt;
 &lt;/$list&gt;
 
-
-&lt;br&gt;__''Empty''__
+&lt;br&gt;
+__''Empty''__
 &lt;$list filter=&quot;[!is[system]!has[text]!has[_canonical_uri]sort[created]]&quot;&gt;
 &lt;br&gt;&lt;$link&gt;&lt;$transclude field=&quot;title&quot;/&gt;&lt;/$link&gt;
 &lt;/$list&gt;</pre>
