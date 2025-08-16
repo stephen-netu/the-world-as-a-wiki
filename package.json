@@ -12,7 +12,7 @@
   },
   "dependencies": {
     "@astrojs/sitemap": "^3.2.0",
-    "astro": "^4.12.0",
+    "astro": "^5.13.2",
     "cheerio": "^1.0.0-rc.12"
   },
   "devDependencies": {
