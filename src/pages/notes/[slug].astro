@@ -19,36 +19,54 @@ const Content = await entry.render();
 ---
 <BaseLayout title={`${entry.data.title} — The World (as Wiki)`}>
   <div class="reading-progress" id="reading-progress"></div>
-  <article class="card">
-    <h1>{entry.data.title}</h1>
-    {entry.data.date && <div class="note-meta">{entry.data.date}</div>}
-    <div>
-      {(entry.data.tags||[]).map(t => <a href={`/tags/${encodeURIComponent(t)}/`} class="tag">{t}</a>)}
+  <div class="with-sidebar">
+    <div class="content-col">
+      <article class="card">
+        <h1>{entry.data.title}</h1>
+        {entry.data.date && <div class="note-meta">{entry.data.date}</div>}
+        <div>
+          {(entry.data.tags||[]).map(t => <a href={`/tags/${encodeURIComponent(t)}/`} class="tag">{t}</a>)}
+        </div>
+        <div style="margin-top:0.5rem">
+          <button id="story-toggle" class="ghost-btn" aria-pressed="false" title="Toggle Story Mode">Story Mode</button>
+        </div>
+        <Content.Content />
+      </article>
+      {(outboundEntries.length > 0) && (
+        <section class="card" style="margin-top:1rem">
+          <h3>Links from this note</h3>
+          <ul>
+            {outboundEntries.map(n => <li><a href={`/notes/${n.slug}/`}>{n.data.title}</a></li>)}
+          </ul>
+        </section>
+      )}
+      {(backlinks.length > 0) && (
+        <section class="card" style="margin-top:1rem">
+          <h3>Backlinks</h3>
+          <ul>
+            {backlinks.map(b => <li><a href={`/notes/${b.slug}/`}>{b.data.title}</a></li>)}
+          </ul>
+        </section>
+      )}
+      <section class="card" style="margin-top:1rem">
+        <a href={`/graph?focus=${slug}`}>Open in Graph</a>
+      </section>
     </div>
-    <div style="margin-top:0.5rem">
-      <button id="story-toggle" class="ghost-btn" aria-pressed="false" title="Toggle Story Mode">Story Mode</button>
-    </div>
-    <Content.Content />
-  </article>
-  {(outboundEntries.length > 0) && (
-    <section class="card" style="margin-top:1rem">
-      <h3>Links from this note</h3>
-      <ul>
-        {outboundEntries.map(n => <li><a href={`/notes/${n.slug}/`}>{n.data.title}</a></li>)}
-      </ul>
-    </section>
-  )}
-  {(backlinks.length > 0) && (
-    <section class="card" style="margin-top:1rem">
-      <h3>Backlinks</h3>
-      <ul>
-        {backlinks.map(b => <li><a href={`/notes/${b.slug}/`}>{b.data.title}</a></li>)}
-      </ul>
-    </section>
-  )}
-  <section class="card" style="margin-top:1rem">
-    <a href={`/graph?focus=${slug}`}>Open in Graph</a>
-  </section>
+    <aside class="sidebar-col">
+      <div class="card widget" data-widget="mini-map" aria-busy="true">
+        <strong>Map</strong>
+        <div class="widget-body"></div>
+      </div>
+      <div class="card widget" data-widget="mini-timeline" aria-busy="true">
+        <strong>Timeline</strong>
+        <div class="widget-body"></div>
+      </div>
+      <div class="card widget" data-widget="mini-graph" aria-busy="true">
+        <strong>Graph</strong>
+        <div class="widget-body"></div>
+      </div>
+    </aside>
+  </div>
   <script>
     (function(){
       const storyKey = 'story-mode';
@@ -78,6 +96,44 @@ const Content = await entry.render();
       };
       window.addEventListener('scroll', onScroll, { passive: true });
       onScroll();
+      // Lazy widgets
+      const pageCtx = {
+        slug: ${JSON.stringify(slug)},
+        title: ${JSON.stringify(entry.data.title)},
+        coordinates: ${JSON.stringify(entry.data.coordinates || null)},
+        date: ${JSON.stringify(entry.data.date || null)},
+        links: ${JSON.stringify(entry.data.links || [])},
+      };
+      const widgets = document.querySelectorAll('.widget[data-widget]');
+      if (widgets.length) {
+        const registry = {
+          'mini-map': () => import('/widgets/mini-map.js'),
+          'mini-timeline': () => import('/widgets/mini-timeline.js'),
+          'mini-graph': () => import('/widgets/mini-graph.js'),
+        };
+        const io = new IntersectionObserver((entries, obs) => {
+          entries.forEach(async (ent) => {
+            if (!ent.isIntersecting) return;
+            const el = ent.target;
+            const kind = el.getAttribute('data-widget');
+            const loader = registry[kind];
+            if (!loader) { obs.unobserve(el); return; }
+            try {
+              const mod = await loader();
+              const initFn = mod.default || mod.init;
+              if (typeof initFn === 'function') {
+                await initFn(el.querySelector('.widget-body'), pageCtx);
+              }
+            } catch (e) {
+              console.error('Widget load failed', kind, e);
+            } finally {
+              el.removeAttribute('aria-busy');
+              obs.unobserve(el);
+            }
+          });
+        }, { rootMargin: '200px 0px' });
+        widgets.forEach(w => io.observe(w));
+      }
     })();
   </script>
 </BaseLayout>

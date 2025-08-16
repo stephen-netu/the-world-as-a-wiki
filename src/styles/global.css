@@ -46,3 +46,16 @@ body[data-story="on"] .site-main { max-width: 780px; }
 
 /* Progress bar */
 .reading-progress { position: fixed; top: 0; left: 0; height: 3px; width: 0; background: var(--accent); z-index: 9999; box-shadow: 0 0 12px rgba(59,130,246,0.7); transition: width 0.1s linear; }
+
+/* Sidebar layout */
+.with-sidebar { display: grid; grid-template-columns: 1fr; gap: 1rem; }
+.content-col { min-width: 0; }
+.sidebar-col { display: grid; gap: 1rem; align-content: start; }
+@media (min-width: 980px) {
+  .with-sidebar { grid-template-columns: minmax(0, 1fr) 320px; }
+}
+.widget .widget-body { margin-top: 0.5rem; }
+
+/* Hide sidebar in Story mode */
+body[data-story="on"] .with-sidebar { grid-template-columns: 1fr !important; }
+body[data-story="on"] .sidebar-col { display: none; }
