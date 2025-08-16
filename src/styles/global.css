@@ -20,3 +20,29 @@ a:hover { text-decoration: underline; }
 .note-meta { color: var(--muted); font-size: 0.9rem; margin-bottom: 0.5rem; }
 pre, code { background:#0e1220; border:1px solid #222733; border-radius: 6px; }
 pre { padding: 1rem; overflow:auto; }
+
+/* App Shell additions */
+.primary-nav { display:flex; gap: 0.8rem; align-items:center; }
+.ghost-btn { background: transparent; color: var(--muted); border: 1px solid #222733; border-radius: 8px; padding: 0.35rem 0.6rem; cursor: pointer; }
+.ghost-btn:hover { color: var(--text); border-color: #2a3143; }
+
+/* Hero */
+.hero { display: grid; gap: 1rem; padding: 2rem; background: radial-gradient(1200px 600px at 10% -10%, #1a2030, transparent), linear-gradient(180deg, #121624, #0f1117); border: 1px solid #222733; border-radius: 16px; }
+.hero h1 { margin: 0; font-size: 2rem; }
+.hero .tagline { color: var(--muted); }
+.portals { display: grid; gap: 0.8rem; grid-template-columns: repeat(auto-fill, minmax(180px, 1fr)); }
+.portal { display:block; padding: 0.9rem; background:#101423; border:1px solid #1f2533; border-radius: 12px; }
+.portal:hover { border-color:#2a3143; }
+
+/* Footer */
+.footer-links { display: grid; gap: 1rem; grid-template-columns: repeat(auto-fit, minmax(180px, 1fr)); margin-top: 0.75rem; text-align: left; }
+.footer-nav { display:flex; flex-wrap: wrap; gap: 0.5rem 0.8rem; margin-top: 0.5rem; }
+
+/* Simplified / Story modes */
+body[data-simplified="on"] .portal { display:none; }
+body[data-story="on"] .site-header,
+body[data-story="on"] .site-footer { display: none; }
+body[data-story="on"] .site-main { max-width: 780px; }
+
+/* Progress bar */
+.reading-progress { position: fixed; top: 0; left: 0; height: 3px; width: 0; background: var(--accent); z-index: 9999; box-shadow: 0 0 12px rgba(59,130,246,0.7); transition: width 0.1s linear; }

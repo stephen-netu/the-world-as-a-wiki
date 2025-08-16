@@ -6,7 +6,7 @@
   "scripts": {
     "dev": "astro dev",
     "build": "astro build",
-    "postbuild": "mkdir -p dist/legacy && cp the-world-as-wiki.html dist/legacy/index.html || true && if [ -d assets ]; then mkdir -p dist/legacy/assets && cp -r assets/* dist/legacy/assets/; fi",
+    "postbuild": "mkdir -p dist/legacy && if [ -f .legacy/the-world-as-wiki.html ]; then cp .legacy/the-world-as-wiki.html dist/legacy/index.html; fi && if [ -d assets ]; then mkdir -p dist/legacy/assets && cp -r assets/* dist/legacy/assets/; fi",
     "preview": "astro preview",
     "import:tiddlers": "node scripts/import-tiddlywiki.js"
   },

@@ -1,0 +1,22 @@
+---
+import BaseLayout from "../../layouts/BaseLayout.astro";
+---
+<BaseLayout title="Atlas — A Paracosm: the World">
+  <section class="card" style="margin-bottom:1rem">
+    <h1>Atlas</h1>
+    <p>Coming soon: an explorable map with markers for locations. Click a place to open its note, filter by tag, and switch lenses.</p>
+  </section>
+  <section class="card" style="margin-bottom:1rem">
+    <h3>Preview</h3>
+    <ul>
+      <li>Image-based pan/zoom map (MVP), later optional geo map.</li>
+      <li>Markers from note frontmatter coordinates.</li>
+      <li>Contextual search: filter markers by title/tag.</li>
+    </ul>
+    <pre>{`coordinates: { kind: "image", imageId: "haven", x: 512, y: 348 }`}</pre>
+    <pre>{`coordinates: { kind: "geo", lat: 42.36, lng: -71.06, zoom: 8 }`}</pre>
+  </section>
+  <section class="card" style="height: 320px; display:flex; align-items:center; justify-content:center; border-style:dashed;">
+    <div>🗺️ Map placeholder</div>
+  </section>
+</BaseLayout>

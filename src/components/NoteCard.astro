@@ -1,0 +1,24 @@
+---
+interface Props {
+  title: string;
+  slug: string;
+  date?: string | Date;
+  description?: string;
+  tags?: string[];
+}
+const { title, slug, date, description = '', tags = [] } = Astro.props as Props;
+const toISO = (d: unknown) => {
+  if (!d) return '';
+  if (d instanceof Date) return d.toISOString();
+  const dt = new Date(String(d));
+  return isNaN(dt.getTime()) ? String(d) : dt.toISOString();
+};
+---
+<article class="card">
+  <h3><a href={`/notes/${slug}/`}>{title}</a></h3>
+  {date && <div class="note-meta">{toISO(date)}</div>}
+  {description && <p>{description}</p>}
+  <div>
+    {tags.map((t) => <span class="tag">{t}</span>)}
+  </div>
+</article>

@@ -1,7 +1,7 @@
 ---
-import BaseLayout from "../layouts/BaseLayout.astro";
+import BaseLayout from "../../layouts/BaseLayout.astro";
 import { getCollection } from "astro:content";
-import NoteCard from "../components/NoteCard.astro";
+import NoteCard from "../../components/NoteCard.astro";
 const raw = await getCollection('notes');
 const notes = raw.filter(n => !n.data.draft);
 const toISO = (d: unknown) => {
@@ -13,37 +13,24 @@ const toISO = (d: unknown) => {
 notes.sort((a,b)=> toISO(b.data.date).localeCompare(toISO(a.data.date)));
 const summary = notes.map(n=>({ slug:n.slug, title:n.data.title, description:n.data.description||'', tags:n.data.tags||[], date: toISO(n.data.date) }));
 ---
-<BaseLayout title="A Paracosm: the World">
-  <section class="hero" style="margin-bottom:1rem">
-    <div>
-      <h1>A Paracosm: the World</h1>
-      <div class="tagline">Greetings, welcome to Haven.</div>
-    </div>
-    <div class="portals">
-      <a class="portal" href="/atlas/">🗺️ Enter the Atlas</a>
-      <a class="portal" href="/timeline/">🕰️ View the Timeline</a>
-      <a class="portal" href="/codex/">📖 Open the Codex</a>
-      <a class="portal" href="/characters/">👥 Meet the Characters</a>
-      <a class="portal" href="/graph">🕸️ Explore the Graph</a>
-      <button id="random-note" class="portal" style="text-align:left; cursor:pointer;">🎲 Take me somewhere</button>
-    </div>
+<BaseLayout title="All Notes — A Paracosm: the World">
+  <section class="card" style="margin-bottom:1rem">
+    <h1>All Notes</h1>
+    <p>Search and sort every note in the world. Use tags and titles to find what you need.</p>
     <input id="search" class="input" placeholder="Search notes and tags…" />
   </section>
-
   <section class="grid" id="results">
-    {summary.slice(0, 12).map(n => (
+    {summary.map(n => (
       <NoteCard title={n.title} slug={n.slug} date={n.date} description={n.description} tags={n.tags} />
     ))}
   </section>
-
   <script type="application/json" id="notes-data">{JSON.stringify(summary)}</script>
   <script type="module">
     const data = JSON.parse(document.getElementById('notes-data').textContent);
     const search = document.getElementById('search');
     const results = document.getElementById('results');
-    const randomBtn = document.getElementById('random-note');
     const render = (list) => {
-      results.innerHTML = list.slice(0, 48).map(n => `
+      results.innerHTML = list.map(n => `
         <article class="card">
           <h3><a href="/notes/${n.slug}/">${n.title}</a></h3>
           ${n.date ? `<div class="note-meta">${n.date}</div>` : ''}
@@ -60,11 +47,6 @@ const summary = notes.map(n=>({ slug:n.slug, title:n.data.title, description:n.d
         (n.tags||[]).some(t => t.toLowerCase().includes(q))
       ));
       render(filtered);
-    });
-    randomBtn?.addEventListener('click', () => {
-      if (!data.length) return;
-      const pick = data[Math.floor(Math.random() * data.length)];
-      window.location.href = `/notes/${pick.slug}/`;
     });
   </script>
 </BaseLayout>

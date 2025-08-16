@@ -36,6 +36,19 @@ const args = new Set(process.argv.slice(2));
 const DRY_RUN = args.has('--dry-run');
 const CONVERT = args.has('--convert');
 const OVERWRITE = args.has('--overwrite');
+const REPORT = args.has('--report');
+
+function inferTypeFromTags(tags = []) {
+  const set = new Set(tags.map(t => t.toLowerCase()));
+  // Map common tag buckets to our schema types
+  if (set.has('characters') || set.has('character') || set.has('people')) return 'Character';
+  if (set.has('locations') || set.has('location') || set.has('places') || set.has('place')) return 'Location';
+  if (set.has('factions') || set.has('faction')) return 'Faction';
+  if (set.has('artifacts') || set.has('artifact') || set.has('items') || set.has('relic')) return 'Artifact';
+  if (set.has('stories') || set.has('story')) return 'Story';
+  if (set.has('events') || set.has('event')) return 'Event';
+  return 'Lore';
+}
 
 function toSlug(input) {
   return String(input)
@@ -285,6 +298,7 @@ async function main() {
 
   const createdFiles = [];
   const overwrittenFiles = [];
+  const reportItems = [];
   for (const t of tiddlers) {
     const slug = titleToSlug.get(t.title) || toSlug(t.title);
     const filePath = path.join(NOTES_DIR, `${slug}.md`);
@@ -294,6 +308,8 @@ async function main() {
     try { await fs.access(filePath); exists = true; } catch {}
     if (exists && !OVERWRITE) continue;
 
+    const inferredType = inferTypeFromTags(t.tags || []);
+
     const frontmatter = {
       title: t.title,
       description: '',
@@ -301,6 +317,8 @@ async function main() {
       tags: t.tags || [],
       links: t.links || [],
       draft: false,
+      // only include type if we inferred something other than Lore to minimize churn
+      ...(inferredType && inferredType !== 'Lore' ? { type: inferredType } : {}),
     };
 
     const yaml = Object.entries(frontmatter)
@@ -341,6 +359,10 @@ async function main() {
       ].join('\n');
     }
 
+    if (REPORT) {
+      reportItems.push({ title: t.title, slug, inferredType, tags: t.tags || [], links: (t.links||[]).length });
+    }
+
     if (!DRY_RUN) {
       await fs.writeFile(filePath, body, 'utf8');
     }
@@ -351,6 +373,11 @@ async function main() {
   console.log(`Identified ${tiddlers.length} candidate tiddlers.`);
   console.log(`Created ${createdFiles.length} new notes${DRY_RUN ? ' (dry-run)' : ''}.`);
   if (OVERWRITE) console.log(`Overwrote ${overwrittenFiles.length} notes${DRY_RUN ? ' (dry-run)' : ''}.`);
+  if (REPORT) {
+    const counts = reportItems.reduce((acc, r) => { acc[r.inferredType||'Unknown'] = (acc[r.inferredType||'Unknown']||0)+1; return acc; }, {});
+    const payload = { total: reportItems.length, counts, sample: reportItems.slice(0, 20) };
+    console.log(JSON.stringify(payload, null, 2));
+  }
   if (createdFiles.length) {
     for (const f of createdFiles.slice(0, 20)) console.log(`- ${f}`);
     if (createdFiles.length > 20) console.log(`... and ${createdFiles.length - 20} more`);

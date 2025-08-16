@@ -12,18 +12,65 @@ const { title = 'The World (as Wiki)', description = 'An explorable world of not
   </head>
   <body>
     <header class="site-header">
-      <a class="brand" href="/">The World (as Wiki)</a>
-      <nav>
-        <a href="/">Home</a>
+      <a class="brand" href="/">A Paracosm: the World</a>
+      <nav class="primary-nav">
+        <a href="/atlas/">Atlas</a>
+        <a href="/timeline/">Timeline</a>
+        <a href="/codex/">Codex</a>
+        <a href="/characters/">Characters</a>
         <a href="/graph">Graph</a>
       </nav>
+      <button id="simplify-toggle" class="ghost-btn" aria-pressed="false" title="Toggle Simplified View">◐</button>
     </header>
     <main class="site-main">
       <slot />
     </main>
     <footer class="site-footer">
-      <div>© {new Date().getFullYear()} The World (as Wiki)</div>
-      <div><a href="https://github.com/stephen-netu/stephen-netu.github.io">GitHub</a></div>
+      <div>© {new Date().getFullYear()} A Paracosm: the World</div>
+      <div class="footer-links">
+        <div>
+          <strong>Explore</strong>
+          <div class="footer-nav">
+            <a href="/atlas/">Atlas</a>
+            <a href="/timeline/">Timeline</a>
+            <a href="/codex/">Codex</a>
+            <a href="/characters/">Characters</a>
+            <a href="/graph">Graph</a>
+          </div>
+        </div>
+        <div>
+          <strong>Power User Tools</strong>
+          <div class="footer-nav">
+            <a href="/tags/">Tags</a>
+          </div>
+        </div>
+        <div>
+          <a href="https://github.com/stephen-netu/stephen-netu.github.io">GitHub</a>
+        </div>
+      </div>
     </footer>
+    <script>
+      (function() {
+        const key = 'simplified-view';
+        const apply = (on) => {
+          try {
+            if (on) document.body.dataset.simplified = 'on';
+            else delete document.body.dataset.simplified;
+          } catch {}
+        };
+        const saved = localStorage.getItem(key) === '1';
+        apply(saved);
+        const btn = document.getElementById('simplify-toggle');
+        if (btn) {
+          btn.setAttribute('aria-pressed', saved ? 'true' : 'false');
+          btn.addEventListener('click', () => {
+            const next = !(localStorage.getItem(key) === '1');
+            localStorage.setItem(key, next ? '1' : '0');
+            btn.setAttribute('aria-pressed', next ? 'true' : 'false');
+            apply(next);
+          });
+        }
+      })();
+    </script>
   </body>
 </html>
