@@ -1,22 +1,120 @@
 ---
 import BaseLayout from "../../layouts/BaseLayout.astro";
+import { getCollection } from 'astro:content';
+
+const notes = await getCollection('notes', ({ data }) => !data.draft);
+type Marker = { slug: string; title: string; imageId: string; xPct: number; yPct: number; tags: string[] };
+const markers: Marker[] = [];
+for (const n of notes) {
+  const c: any = (n.data as any).coordinates;
+  if (c && c.kind === 'image' && typeof c.imageId === 'string') {
+    // Interpret x,y as percentages (0-100). If given 0-1, scale up.
+    let x = Number(c.x);
+    let y = Number(c.y);
+    if (isFinite(x) && isFinite(y)) {
+      if (x <= 1 && y <= 1) { x *= 100; y *= 100; }
+      markers.push({ slug: n.slug, title: n.data.title, imageId: c.imageId, xPct: x, yPct: y, tags: n.data.tags||[] });
+    }
+  }
+}
+const imageIds = Array.from(new Set(markers.map(m => m.imageId)));
+const qsId = Astro.url.searchParams.get('imageId') || '';
+const currentId = (qsId && (imageIds.includes(qsId) || true)) ? qsId : (imageIds[0] || 'haven');
+const currentMarkers = markers.filter(m => m.imageId === currentId);
+const mapImageUrl = `/assets/atlas/${currentId}.jpg`;
 ---
 <BaseLayout title="Atlas — A Paracosm: the World">
   <section class="card" style="margin-bottom:1rem">
     <h1>Atlas</h1>
-    <p>Coming soon: an explorable map with markers for locations. Click a place to open its note, filter by tag, and switch lenses.</p>
+    <p>Pan and zoom the image map. Click markers to open notes.</p>
+    <div style="display:flex; gap:0.5rem; align-items:center; margin-top:0.5rem;">
+      <label for="dataset">Dataset:</label>
+      <select id="dataset" class="input" style="max-width:240px">
+        {imageIds.length ? imageIds.map(id => <option value={id} selected={id===currentId}>{id}</option>) : <option value={currentId}>{currentId}</option>}
+      </select>
+    </div>
   </section>
-  <section class="card" style="margin-bottom:1rem">
-    <h3>Preview</h3>
-    <ul>
-      <li>Image-based pan/zoom map (MVP), later optional geo map.</li>
-      <li>Markers from note frontmatter coordinates.</li>
-      <li>Contextual search: filter markers by title/tag.</li>
-    </ul>
-    <pre>{`coordinates: { kind: "image", imageId: "haven", x: 512, y: 348 }`}</pre>
-    <pre>{`coordinates: { kind: "geo", lat: 42.36, lng: -71.06, zoom: 8 }`}</pre>
+
+  <section class="card">
+    <div id="atlas" class="atlas" data-image={mapImageUrl}>
+      <div class="stage">
+        <div class="markers">
+          {currentMarkers.map(m => (
+            <a href={`/notes/${m.slug}/`} class="marker" style={`left:${m.xPct}%; top:${m.yPct}%;`} title={m.title}>
+              <span></span>
+            </a>
+          ))}
+        </div>
+      </div>
+      <div class="atlas-empty" aria-hidden="true">Map image not found. Add one at {`public${mapImageUrl}`}.</div>
+      <div class="atlas-legend">Use mouse wheel to zoom. Drag to pan.</div>
+    </div>
   </section>
-  <section class="card" style="height: 320px; display:flex; align-items:center; justify-content:center; border-style:dashed;">
-    <div>🗺️ Map placeholder</div>
-  </section>
+
+  <style>
+    .atlas { position: relative; width: 100%; aspect-ratio: 4 / 3; overflow: hidden; background:#0e1220; }
+    .atlas .stage { position:absolute; inset:0; background-size: contain; background-repeat:no-repeat; background-position:center; transform-origin: 0 0; }
+    .atlas[data-loaded="1"] .stage { background-image: var(--atlas-image); }
+    .atlas .markers { position:absolute; inset:0; pointer-events:none; }
+    .atlas .marker { position:absolute; width:18px; height:18px; transform: translate(-50%, -50%); pointer-events:auto; }
+    .atlas .marker span { display:block; width:100%; height:100%; border-radius:50%; background: var(--accent); box-shadow: 0 0 0 2px rgba(15,17,23,0.9), 0 0 12px rgba(59,130,246,0.6); }
+    .atlas-legend { position:absolute; right: 8px; bottom: 8px; font-size: 0.85rem; color: var(--muted); background: rgba(15,17,23,0.6); padding: 0.2rem 0.5rem; border-radius: 6px; border:1px solid #222733; }
+    .atlas-empty { position:absolute; inset:0; display:grid; place-items:center; color:#9aa4b2; border:1px dashed #2a3143; }
+  </style>
+
+  <script>
+    (function(){
+      const root = document.getElementById('atlas');
+      if (!root) return;
+      const imgUrl = root.getAttribute('data-image') || '';
+      // Set CSS var for background image once it loads
+      const img = new Image();
+      img.onload = () => {
+        root.style.setProperty('--atlas-image', `url(${imgUrl})`);
+        root.setAttribute('data-loaded','1');
+        empty(false);
+      };
+      img.onerror = () => empty(true);
+      img.src = imgUrl;
+      function empty(on){
+        const el = root.querySelector('.atlas-empty');
+        if (el) el.style.display = on ? 'grid' : 'none';
+      }
+
+      const stage = root.querySelector('.stage');
+      let scale = 1, tx = 0, ty = 0;
+      let dragging = false, lastX = 0, lastY = 0;
+      function apply(){ stage && (stage.style.transform = `translate(${tx}px, ${ty}px) scale(${scale})`); }
+      root.addEventListener('wheel', (e) => {
+        e.preventDefault();
+        const rect = root.getBoundingClientRect();
+        const cx = e.clientX - rect.left - tx;
+        const cy = e.clientY - rect.top - ty;
+        const delta = Math.sign(e.deltaY) * -0.1; // invert: wheel up to zoom in
+        const next = Math.min(5, Math.max(1, scale + delta));
+        const k = next / scale;
+        tx = cx - k * cx + tx;
+        ty = cy - k * cy + ty;
+        scale = next; apply();
+      }, { passive: false });
+      root.addEventListener('mousedown', (e) => { dragging = true; lastX = e.clientX; lastY = e.clientY; });
+      window.addEventListener('mouseup', () => { dragging = false; });
+      window.addEventListener('mousemove', (e) => {
+        if (!dragging) return;
+        const dx = e.clientX - lastX; const dy = e.clientY - lastY;
+        lastX = e.clientX; lastY = e.clientY; tx += dx; ty += dy; apply();
+      });
+
+      // Dataset switch (non-persistent MVP)
+      const select = document.getElementById('dataset');
+      if (select) {
+        select.addEventListener('change', () => {
+          const id = select.value;
+          const url = new URL(location.href);
+          url.searchParams.set('imageId', id);
+          location.href = url.toString();
+        });
+      }
+    })();
+  </script>
 </BaseLayout>

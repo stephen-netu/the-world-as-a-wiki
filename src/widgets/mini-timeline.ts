@@ -1,4 +1,4 @@
-export default function init(el, ctx) {
+export default function init(el: HTMLElement, ctx: any) {
   const dateStr = ctx && ctx.date ? String(ctx.date) : null;
   if (!dateStr) {
     const msg = document.createElement('div');
@@ -41,10 +41,10 @@ export default function init(el, ctx) {
 
   const line = document.createElement('div');
   line.style.position = 'absolute';
-  line.style.left = '8px';
-  line.style.right = '8px';
-  line.style.top = '28px';
-  line.style.height = '2px';
+  (line.style as any).left = '8px';
+  (line.style as any).right = '8px';
+  (line.style as any).top = '28px';
+  (line.style as any).height = '2px';
   line.style.background = '#2a3143';
   line.style.boxShadow = 'inset 0 0 0 1px #1f2533';
   bar.appendChild(line);
@@ -54,19 +54,19 @@ export default function init(el, ctx) {
     const t = document.createElement('div');
     const pct = (ty - startY) / (endY - startY);
     t.style.position = 'absolute';
-    t.style.left = `calc(8px + ${pct*100}% * (1 - 16px/${width}))`;
-    t.style.top = '22px';
-    t.style.width = '1px';
-    t.style.height = '12px';
+    (t.style as any).left = `calc(8px + ${pct*100}% * (1 - 16px/${width}))`;
+    (t.style as any).top = '22px';
+    (t.style as any).width = '1px';
+    (t.style as any).height = '12px';
     t.style.background = '#3a4258';
     bar.appendChild(t);
 
     const label = document.createElement('div');
     label.textContent = String(ty);
     label.style.position = 'absolute';
-    label.style.top = '2px';
-    label.style.transform = 'translateX(-50%)';
-    label.style.left = `calc(8px + ${pct*100}% * (1 - 16px/${width}))`;
+    (label.style as any).top = '2px';
+    (label.style as any).transform = 'translateX(-50%)';
+    (label.style as any).left = `calc(8px + ${pct*100}% * (1 - 16px/${width}))`;
     label.style.fontSize = '10px';
     label.style.color = '#9aa4b2';
     bar.appendChild(label);
@@ -76,10 +76,10 @@ export default function init(el, ctx) {
   const marker = document.createElement('div');
   const mpct = (y - startY) / (endY - startY);
   marker.style.position = 'absolute';
-  marker.style.left = `calc(8px + ${mpct*100}% * (1 - 16px/${width}))`;
-  marker.style.top = '18px';
-  marker.style.width = '2px';
-  marker.style.height = '20px';
+  (marker.style as any).left = `calc(8px + ${mpct*100}% * (1 - 16px/${width}))`;
+  (marker.style as any).top = '18px';
+  (marker.style as any).width = '2px';
+  (marker.style as any).height = '20px';
   marker.style.background = 'var(--accent)';
   marker.style.boxShadow = '0 0 10px rgba(59,130,246,0.8)';
   marker.title = dateStr + (ctx.era ? ` — ${ctx.era}` : '');
@@ -90,7 +90,7 @@ export default function init(el, ctx) {
   caption.style.color = '#9aa4b2';
   caption.style.fontSize = '0.85rem';
   caption.style.display = 'flex';
-  caption.style.justifyContent = 'space-between';
+  (caption.style as any).justifyContent = 'space-between';
   caption.innerHTML = `<span>${ctx.era ? `<strong>${escapeHtml(ctx.era)}</strong> · ` : ''}${escapeHtml(dateStr)}</span><span>${startY}–${endY}</span>`;
 
   wrap.appendChild(bar);
@@ -98,6 +98,6 @@ export default function init(el, ctx) {
   el.replaceChildren(wrap);
 }
 
-function escapeHtml(s) {
-  return String(s).replace(/[&<>"']/g, (ch) => ({'&':'&amp;','<':'&lt;','>':'&gt;','"':'&quot;','\'':'&#39;'}[ch]));
+function escapeHtml(s: any) {
+  return String(s).replace(/[&<>"']/g, (ch) => ({'&':'&amp;','<':'&lt;','>':'&gt;','"':'&quot;','\'':'&#39;'} as any)[ch]);
 }

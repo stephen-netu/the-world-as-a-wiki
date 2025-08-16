@@ -1,6 +1,6 @@
-export default function init(el, ctx) {
+export default function init(el: HTMLElement, ctx: any) {
   // ctx: { slug, title, coordinates, date, links }
-  const body = el;
+  const body = el as HTMLElement;
   const coords = ctx && ctx.coordinates;
   if (!coords || coords.kind !== 'image' || !coords.imageId) {
     const msg = document.createElement('div');
@@ -33,31 +33,31 @@ export default function init(el, ctx) {
 
   const img = document.createElement('img');
   img.alt = coords.imageId + ' map';
-  img.decoding = 'async';
-  img.loading = 'lazy';
+  (img as any).decoding = 'async';
+  (img as any).loading = 'lazy';
   img.src = `/assets/atlas/${coords.imageId}.jpg`;
   img.style.width = '100%';
   img.style.height = '100%';
-  img.style.objectFit = 'contain';
+  (img.style as any).objectFit = 'contain';
   img.style.display = 'block';
 
   const marker = document.createElement('div');
   marker.style.position = 'absolute';
   marker.style.width = '10px';
   marker.style.height = '10px';
-  marker.style.borderRadius = '50%';
+  (marker.style as any).borderRadius = '50%';
   marker.style.background = 'var(--accent)';
   marker.style.boxShadow = '0 0 0 2px rgba(15,17,23,0.9), 0 0 10px rgba(59,130,246,0.8)';
-  marker.style.transform = 'translate(-50%, -50%)';
+  (marker.style as any).transform = 'translate(-50%, -50%)';
   marker.title = ctx.title || '';
 
   const err = document.createElement('div');
   err.textContent = 'Map image not found';
   err.style.position = 'absolute';
-  err.style.inset = '0';
+  (err.style as any).inset = '0';
   err.style.display = 'none';
-  err.style.alignItems = 'center';
-  err.style.justifyContent = 'center';
+  (err.style as any).alignItems = 'center';
+  (err.style as any).justifyContent = 'center';
   err.style.color = '#9aa4b2';
   err.style.background = 'rgba(10,12,20,0.6)';
 
@@ -67,8 +67,8 @@ export default function init(el, ctx) {
 
   function placeMarker(){
     const cw = box.clientWidth, ch = box.clientHeight;
-    const iw = img.naturalWidth || cw;
-    const ih = img.naturalHeight || ch;
+    const iw = (img as HTMLImageElement).naturalWidth || cw;
+    const ih = (img as HTMLImageElement).naturalHeight || ch;
     const scale = Math.min(cw/iw, ch/ih);
     const dw = iw * scale;
     const dh = ih * scale;
@@ -76,8 +76,8 @@ export default function init(el, ctx) {
     const oy = (ch - dh) / 2;
     const px = ox + (x/100) * dw;
     const py = oy + (y/100) * dh;
-    marker.style.left = px + 'px';
-    marker.style.top = py + 'px';
+    (marker.style as any).left = px + 'px';
+    (marker.style as any).top = py + 'px';
   }
 
   box.addEventListener('click', () => {

@@ -29,9 +29,24 @@ const Content = await entry.render();
         </div>
         <div style="margin-top:0.5rem">
           <button id="story-toggle" class="ghost-btn" aria-pressed="false" title="Toggle Story Mode">Story Mode</button>
+          <button id="edit-toggle" class="ghost-btn" aria-pressed="false" title="Toggle Editor" style="margin-left:0.5rem">Edit</button>
         </div>
         <Content.Content />
       </article>
+      <section class="card" id="editor-panel" style="display:none; margin-top:1rem">
+        <h3 style="margin-top:0">Editor</h3>
+        <div style="display:flex; gap:0.75rem; flex-wrap:wrap; margin-bottom:0.5rem">
+          <button id="ed-save" class="ghost-btn">Save Draft</button>
+          <button id="ed-revert" class="ghost-btn">Revert</button>
+          <button id="ed-export" class="ghost-btn">Export .md</button>
+          <label class="ghost-btn" for="ed-import" style="cursor:pointer">Import .md</label>
+          <input id="ed-import" type="file" accept="text/markdown,.md,.markdown" style="display:none" />
+        </div>
+        <div class="editor-grid">
+          <textarea id="ed-src" spellcheck="false" class="editor-textarea"></textarea>
+          <div id="ed-prev" class="editor-preview"></div>
+        </div>
+      </section>
       {(outboundEntries.length > 0) && (
         <section class="card" style="margin-top:1rem">
           <h3>Links from this note</h3>
@@ -67,6 +82,16 @@ const Content = await entry.render();
       </div>
     </aside>
   </div>
+  <script type="application/json" id="page-ctx">{JSON.stringify({
+    slug,
+    title: entry.data.title,
+    coordinates: entry.data.coordinates || null,
+    date: entry.data.date || null,
+    era: entry.data.era || null,
+    links: entry.data.links || [],
+    body: entry.body || '',
+    frontmatter: entry.data,
+  })}</script>
   <script>
     (function(){
       const storyKey = 'story-mode';
@@ -97,19 +122,128 @@ const Content = await entry.render();
       window.addEventListener('scroll', onScroll, { passive: true });
       onScroll();
       // Lazy widgets
-      const pageCtx = {
-        slug: ${JSON.stringify(slug)},
-        title: ${JSON.stringify(entry.data.title)},
-        coordinates: ${JSON.stringify(entry.data.coordinates || null)},
-        date: ${JSON.stringify(entry.data.date || null)},
-        links: ${JSON.stringify(entry.data.links || [])},
-      };
+      let pageCtx = {};
+      try {
+        const raw = document.getElementById('page-ctx');
+        if (raw) pageCtx = JSON.parse(raw.textContent || '{}');
+      } catch {}
+
+      // Editor
+      const editBtn = document.getElementById('edit-toggle');
+      const panel = document.getElementById('editor-panel');
+      const ta = document.getElementById('ed-src');
+      const prev = document.getElementById('ed-prev');
+      const saveBtn = document.getElementById('ed-save');
+      const revBtn = document.getElementById('ed-revert');
+      const expBtn = document.getElementById('ed-export');
+      const impInp = document.getElementById('ed-import');
+      const storageKey = 'draft:' + (pageCtx.slug || '');
+      let markedMod = null;
+
+      function setEdit(on){
+        if (!panel || !editBtn) return;
+        panel.style.display = on ? '' : 'none';
+        editBtn.setAttribute('aria-pressed', on ? 'true' : 'false');
+        if (on) initEditor();
+      }
+      async function ensureMarked(){
+        if (markedMod) return markedMod;
+        try {
+          markedMod = await import(/* @vite-ignore */ 'https://cdn.jsdelivr.net/npm/marked@11/+esm');
+        } catch {
+          markedMod = { marked: { parse: (t) => String(t || '') } };
+        }
+        return markedMod;
+      }
+      function loadDraft(){
+        try { return localStorage.getItem(storageKey) || ''; } catch { return ''; }
+      }
+      function saveDraft(text){
+        try { localStorage.setItem(storageKey, text); } catch {}
+      }
+      function clearDraft(){ try { localStorage.removeItem(storageKey); } catch {} }
+
+      function originalBody(){ return String(pageCtx.body || ''); }
+      function currentFrontmatter(){ return (pageCtx.frontmatter || {}); }
+      function stripFrontmatter(text){
+        if (!text) return text;
+        if (text.startsWith('---')) {
+          const idx = text.indexOf('\n---', 3);
+          if (idx !== -1) return text.slice(idx + 4).replace(/^\n+/, '');
+        }
+        return text;
+      }
+      function yamlEscape(s){
+        if (s === null) return 'null';
+        if (typeof s === 'number' || typeof s === 'boolean') return String(s);
+        const str = String(s);
+        return /[:\-\n#]|^\s|\s$/.test(str) ? JSON.stringify(str) : str;
+      }
+      function toYAML(obj, indent = ''){
+        if (obj == null) return '';
+        const lines = [];
+        for (const [k,v] of Object.entries(obj)){
+          if (Array.isArray(v)) {
+            if (v.length === 0) continue;
+            lines.push(`${indent}${k}:`);
+            for (const it of v) lines.push(`${indent}- ${yamlEscape(it)}`.replace(`${indent}-`, `${indent}  -`));
+          } else if (typeof v === 'object' && v) {
+            lines.push(`${indent}${k}:`);
+            for (const [k2,v2] of Object.entries(v)){
+              if (v2 == null) continue;
+              lines.push(`${indent}  ${k2}: ${yamlEscape(v2)}`);
+            }
+          } else if (v !== undefined) {
+            lines.push(`${indent}${k}: ${yamlEscape(v)}`);
+          }
+        }
+        return lines.join('\n');
+      }
+      function buildFullMarkdown(body){
+        const fm = currentFrontmatter();
+        const yaml = toYAML(fm);
+        return `---\n${yaml}\n---\n\n${body || ''}`;
+      }
+      async function renderPrev(text){
+        const m = await ensureMarked();
+        if (m && m.marked) {
+          prev.innerHTML = m.marked.parse(text || '');
+        } else {
+          prev.textContent = text || '';
+        }
+      }
+      async function initEditor(){
+        if (!ta || !prev) return;
+        const draft = loadDraft();
+        const base = originalBody();
+        ta.value = draft ? stripFrontmatter(draft) : base;
+        await renderPrev(ta.value);
+      }
+      if (editBtn) editBtn.addEventListener('click', () => setEdit(panel && panel.style.display === 'none'));
+      if (ta) ta.addEventListener('input', () => { renderPrev(ta.value); });
+      if (saveBtn) saveBtn.addEventListener('click', () => { saveDraft(buildFullMarkdown(ta.value)); });
+      if (revBtn) revBtn.addEventListener('click', async () => { clearDraft(); ta.value = originalBody(); await renderPrev(ta.value); });
+      if (expBtn) expBtn.addEventListener('click', () => {
+        const blob = new Blob([buildFullMarkdown(ta.value)], { type: 'text/markdown;charset=utf-8' });
+        const a = document.createElement('a');
+        a.href = URL.createObjectURL(blob);
+        a.download = (pageCtx.slug || 'note') + '.md';
+        a.click();
+        setTimeout(() => URL.revokeObjectURL(a.href), 1000);
+      });
+      if (impInp) impInp.addEventListener('change', async () => {
+        const f = impInp.files && impInp.files[0];
+        if (!f) return;
+        const text = await f.text();
+        ta.value = stripFrontmatter(text);
+        await renderPrev(ta.value);
+      });
       const widgets = document.querySelectorAll('.widget[data-widget]');
       if (widgets.length) {
         const registry = {
-          'mini-map': () => import('/widgets/mini-map.js'),
-          'mini-timeline': () => import('/widgets/mini-timeline.js'),
-          'mini-graph': () => import('/widgets/mini-graph.js'),
+          'mini-map': () => import('/src/widgets/mini-map.ts'),
+          'mini-timeline': () => import('/src/widgets/mini-timeline.ts'),
+          'mini-graph': () => import('/src/widgets/mini-graph.ts'),
         };
         const io = new IntersectionObserver((entries, obs) => {
           entries.forEach(async (ent) => {
@@ -136,5 +270,14 @@ const Content = await entry.render();
       }
     })();
   </script>
+  <style>
+    .editor-grid { display: grid; grid-template-columns: 1fr 1fr; gap: 0.75rem; }
+    @media (max-width: 820px) { .editor-grid { grid-template-columns: 1fr; } }
+    .editor-textarea { width: 100%; min-height: 320px; background: var(--card-bg, #0e1220); color: var(--text, #e5e7eb); border: 1px solid #222733; border-radius: 8px; padding: 0.75rem; font-family: ui-monospace, SFMono-Regular, Menlo, Monaco, Consolas, "Liberation Mono", "Courier New", monospace; font-size: 0.95rem; line-height: 1.5; }
+    .editor-preview { width: 100%; min-height: 320px; background: linear-gradient(180deg,#0e1220,#0c101c); border: 1px solid #222733; border-radius: 8px; padding: 0.75rem; overflow: auto; }
+    .editor-preview h1, .editor-preview h2, .editor-preview h3 { margin-top: 0.8rem; }
+    .editor-preview pre { background: #0a0d17; padding: 0.5rem; border-radius: 6px; overflow: auto; }
+    .editor-preview code { font-family: ui-monospace, SFMono-Regular, Menlo, Monaco, Consolas, "Liberation Mono", "Courier New", monospace; }
+  </style>
 </BaseLayout>
 
