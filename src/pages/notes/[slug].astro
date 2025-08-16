@@ -1,0 +1,49 @@
+---
+import BaseLayout from "../../layouts/BaseLayout.astro";
+import { getCollection, getEntryBySlug } from 'astro:content';
+export async function getStaticPaths() {
+  const notes = await getCollection('notes', ({ data }) => !data.draft);
+  return notes.map((n) => ({ params: { slug: n.slug } }));
+}
+const { slug } = Astro.params;
+if (!slug) throw new Error('Missing slug');
+const entry = await getEntryBySlug('notes', slug);
+if (!entry) return Astro.redirect('/');
+const all = await getCollection('notes');
+const backlinks = all.filter(n => (n.data.links||[]).includes(slug) && !n.data.draft);
+const outbound = (entry.data.links||[]).filter(Boolean);
+const outboundEntries = outbound
+  .map(s => all.find(n => n.slug === s))
+  .filter((n) => n && !n.data.draft);
+const Content = await entry.render();
+---
+<BaseLayout title={`${entry.data.title} — The World (as Wiki)`}>
+  <article class="card">
+    <h1>{entry.data.title}</h1>
+    {entry.data.date && <div class="note-meta">{entry.data.date}</div>}
+    <div>
+      {(entry.data.tags||[]).map(t => <a href={`/tags/${encodeURIComponent(t)}/`} class="tag">{t}</a>)}
+    </div>
+    <Content.Content />
+  </article>
+  {(outboundEntries.length > 0) && (
+    <section class="card" style="margin-top:1rem">
+      <h3>Links from this note</h3>
+      <ul>
+        {outboundEntries.map(n => <li><a href={`/notes/${n.slug}/`}>{n.data.title}</a></li>)}
+      </ul>
+    </section>
+  )}
+  {(backlinks.length > 0) && (
+    <section class="card" style="margin-top:1rem">
+      <h3>Backlinks</h3>
+      <ul>
+        {backlinks.map(b => <li><a href={`/notes/${b.slug}/`}>{b.data.title}</a></li>)}
+      </ul>
+    </section>
+  )}
+  <section class="card" style="margin-top:1rem">
+    <a href={`/graph?focus=${slug}`}>Open in Graph</a>
+  </section>
+</BaseLayout>
+

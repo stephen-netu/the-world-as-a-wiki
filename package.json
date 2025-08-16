@@ -1,0 +1,21 @@
+{
+  "name": "the-world-as-wiki",
+  "version": "0.1.0",
+  "private": true,
+  "type": "module",
+  "scripts": {
+    "dev": "astro dev",
+    "build": "astro build",
+    "postbuild": "mkdir -p dist/legacy && cp the-world-as-wiki.html dist/legacy/index.html || true && if [ -d assets ]; then mkdir -p dist/legacy/assets && cp -r assets/* dist/legacy/assets/; fi",
+    "preview": "astro preview",
+    "import:tiddlers": "node scripts/import-tiddlywiki.js"
+  },
+  "dependencies": {
+    "@astrojs/sitemap": "^3.2.0",
+    "astro": "^4.12.0",
+    "cheerio": "^1.0.0-rc.12"
+  },
+  "devDependencies": {
+    "typescript": "^5.4.0"
+  }
+}

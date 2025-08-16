@@ -1,0 +1,58 @@
+---
+import BaseLayout from "../layouts/BaseLayout.astro";
+import { getCollection } from "astro:content";
+const raw = await getCollection('notes');
+const notes = raw.filter(n => !n.data.draft);
+const toISO = (d: unknown) => {
+  if (!d) return '';
+  if (d instanceof Date) return d.toISOString();
+  const dt = new Date(String(d));
+  return isNaN(dt.getTime()) ? String(d) : dt.toISOString();
+};
+notes.sort((a,b)=> toISO(b.data.date).localeCompare(toISO(a.data.date)));
+const summary = notes.map(n=>({ slug:n.slug, title:n.data.title, description:n.data.description||'', tags:n.data.tags||[], date: toISO(n.data.date) }));
+---
+<BaseLayout title="The World (as Wiki)">
+  <section class="card" style="margin-bottom:1rem">
+    <h1>Start here</h1>
+    <p>Explore a world of interconnected notes. Use search to filter by title or tag. Open any note to see its backlinks. Try the <a href="/graph">Graph</a> for a bird’s-eye view.</p>
+    <input id="search" class="input" placeholder="Search notes and tags…" />
+  </section>
+  <section class="grid" id="results">
+    {summary.map(n => (
+      <article class="card">
+        <h3><a href={`/notes/${n.slug}/`}>{n.title}</a></h3>
+        {n.date && <div class="note-meta">{n.date}</div>}
+        {n.description && <p>{n.description}</p>}
+        <div>
+          {n.tags.map(t => <span class="tag">{t}</span>)}
+        </div>
+      </article>
+    ))}
+  </section>
+  <script type="application/json" id="notes-data">{JSON.stringify(summary)}</script>
+  <script type="module">
+    const data = JSON.parse(document.getElementById('notes-data').textContent);
+    const search = document.getElementById('search');
+    const results = document.getElementById('results');
+    const render = (list) => {
+      results.innerHTML = list.map(n => `
+        <article class="card">
+          <h3><a href="/notes/${n.slug}/">${n.title}</a></h3>
+          ${n.date ? `<div class="note-meta">${n.date}</div>` : ''}
+          ${n.description ? `<p>${n.description}</p>` : ''}
+          <div>${(n.tags||[]).map(t=>`<span class="tag">${t}</span>`).join(' ')}</div>
+        </article>`).join('');
+    };
+    render(data);
+    search.addEventListener('input', () => {
+      const q = search.value.toLowerCase();
+      const filtered = data.filter(n => (
+        n.title.toLowerCase().includes(q) ||
+        (n.description||'').toLowerCase().includes(q) ||
+        (n.tags||[]).some(t => t.toLowerCase().includes(q))
+      ));
+      render(filtered);
+    });
+  </script>
+</BaseLayout>

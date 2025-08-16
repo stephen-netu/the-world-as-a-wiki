@@ -1,0 +1,37 @@
+---
+import BaseLayout from "../../layouts/BaseLayout.astro";
+import { getCollection } from 'astro:content';
+
+export async function getStaticPaths() {
+  const notes = await getCollection('notes', ({ data }) => !data.draft);
+  const tagSet = new Set<string>();
+  for (const n of notes) {
+    for (const t of (n.data.tags || [])) tagSet.add(t);
+  }
+  return Array.from(tagSet).map((t) => ({ params: { tag: t } }));
+}
+
+const { tag } = Astro.params as { tag?: string };
+if (!tag) throw new Error('Missing tag');
+const decoded = decodeURIComponent(tag);
+
+const notes = await getCollection('notes', ({ data }) => !data.draft && (data.tags || []).includes(decoded));
+notes.sort((a, b) => (a.data.title || '').localeCompare(b.data.title || ''));
+---
+<BaseLayout title={`${decoded} — Tags — The World (as Wiki)`}>
+  <article class="card">
+    <h1>Tag: {decoded}</h1>
+    <p><a href="/tags/">← All tags</a></p>
+    {notes.length === 0 ? (
+      <p>No notes yet for this tag.</p>
+    ) : (
+      <ul>
+        {notes.map(n => (
+          <li>
+            <a href={`/notes/${n.slug}/`}>{n.data.title}</a>
+          </li>
+        ))}
+      </ul>
+    )}
+  </article>
+</BaseLayout>

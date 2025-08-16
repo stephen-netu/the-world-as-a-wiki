@@ -1,0 +1,30 @@
+---
+import BaseLayout from "../../layouts/BaseLayout.astro";
+import { getCollection } from 'astro:content';
+
+const notes = await getCollection('notes', ({ data }) => !data.draft);
+const tagCounts = new Map<string, number>();
+for (const n of notes) {
+  for (const t of (n.data.tags || [])) {
+    tagCounts.set(t, (tagCounts.get(t) || 0) + 1);
+  }
+}
+const tags = Array.from(tagCounts.entries()).sort(([a], [b]) => a.localeCompare(b));
+---
+<BaseLayout title="All Tags — The World (as Wiki)">
+  <article class="card">
+    <h1>Tags</h1>
+    {tags.length === 0 ? (
+      <p>No tags yet.</p>
+    ) : (
+      <ul>
+        {tags.map(([t, count]) => (
+          <li>
+            <a href={`/tags/${encodeURIComponent(t)}/`}>{t}</a>
+            <span style="opacity:.7"> ({count})</span>
+          </li>
+        ))}
+      </ul>
+    )}
+  </article>
+</BaseLayout>
