@@ -35,7 +35,10 @@ export default function init(el: HTMLElement, ctx: any) {
   img.alt = coords.imageId + ' map';
   (img as any).decoding = 'async';
   (img as any).loading = 'lazy';
-  img.src = `/assets/atlas/${coords.imageId}.jpg`;
+  {
+    const BASE = (window as any).__BASE_URL__ || '/';
+    img.src = BASE + `assets/atlas/${coords.imageId}.jpg`;
+  }
   img.style.width = '100%';
   img.style.height = '100%';
   (img.style as any).objectFit = 'contain';
@@ -81,7 +84,8 @@ export default function init(el: HTMLElement, ctx: any) {
   }
 
   box.addEventListener('click', () => {
-    const url = new URL('/atlas/', location.origin);
+    const BASE = (window as any).__BASE_URL__ || '/';
+    const url = new URL(BASE + 'atlas/', location.origin);
     url.searchParams.set('imageId', coords.imageId);
     location.href = url.toString();
   });

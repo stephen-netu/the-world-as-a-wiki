@@ -21,7 +21,7 @@ const imageIds = Array.from(new Set(markers.map(m => m.imageId)));
 const qsId = Astro.url.searchParams.get('imageId') || '';
 const currentId = (qsId && (imageIds.includes(qsId) || true)) ? qsId : (imageIds[0] || 'haven');
 const currentMarkers = markers.filter(m => m.imageId === currentId);
-const mapImageUrl = `/assets/atlas/${currentId}.jpg`;
+const mapImageUrl = new URL(`assets/atlas/${currentId}.jpg`, Astro.site).pathname;
 ---
 <BaseLayout title="Atlas — A Paracosm: the World">
   <section class="card" style="margin-bottom:1rem">
@@ -40,7 +40,7 @@ const mapImageUrl = `/assets/atlas/${currentId}.jpg`;
       <div class="stage">
         <div class="markers">
           {currentMarkers.map(m => (
-            <a href={`/notes/${m.slug}/`} class="marker" style={`left:${m.xPct}%; top:${m.yPct}%;`} title={m.title}>
+            <a href={new URL(`notes/${m.slug}/`, Astro.site).pathname} class="marker" style={`left:${m.xPct}%; top:${m.yPct}%;`} title={m.title}>
               <span></span>
             </a>
           ))}

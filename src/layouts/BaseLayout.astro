@@ -75,6 +75,25 @@ const { title = 'The World (as Wiki)', description = 'An explorable world of not
 
     <script>window.__BASE_URL__ = (document.body && document.body.dataset && document.body.dataset.base) || '/';</script>
     <script>
+      // Dev convenience: redirect to base-prefixed path if user hits non-prefixed route.
+      (function(){
+        try {
+          var BASE = window.__BASE_URL__ || '/';
+          // Only act if dev server is mounted under a subpath and current path lacks it
+          if (BASE !== '/' && !location.pathname.startsWith(BASE)) {
+            // Skip Vite/HMR and dev asset namespaces
+            var skip = [/^\/@/, /^\/__/, /^\/_astro\//, /^\/node_modules\//, /^\/@fs\//];
+            if (!skip.some(function(r){ return r.test(location.pathname); })) {
+              var next = BASE + location.pathname.replace(/^\//,'');
+              if (location.search) next += location.search;
+              if (location.hash) next += location.hash;
+              location.replace(next);
+            }
+          }
+        } catch {}
+      })();
+    </script>
+    <script>
       (function() {
         // --- Feature Flags ---
         const flags = (() => {
