@@ -1,8 +1,20 @@
+<!--
+This document is ARCHIVED and has been superseded by `.netu/STRATEGY.md`.
+Please refer to that file for the current project plan.
+-->
+
 # Concept: The Worldbuilder’s Codex
 
 Turn the site into an immersive, explorable codex for your world. Readers can browse by place, character, era, and theme, with multiple “lenses” (map, timeline, graph) and diegetic UI flourishes that feel like stepping into the setting.
 
 Below is a concise, opinionated layout and IA proposal plus an implementation plan that fits your current Astro stack.
+
+## Non-Goals & Security/Privacy
+
+- No always-on backend; must work on static hosting (GitHub Pages).
+- No secrets/tokens in client; zero-trust handling of credentials.
+- No heavy frameworks by default (maps/graphs/editors); use opt-in, lazy-loaded modules only when needed.
+- Preserve static-first pages with small, lazy islands.
 
 # Information Architecture
 
@@ -53,7 +65,7 @@ Below is a concise, opinionated layout and IA proposal plus an implementation pl
   - `src/pages/codex/index.astro` showing categories: Entities (Characters, Factions, Species), Places, Artifacts, Lore, Stories.
 
 - __Search__
-  - Global command palette (Ctrl+K) using Fuse.js on a prebuilt index (title, summary, tags, type).
+  - Global command palette (Ctrl+K) using MiniSearch over a prebuilt `public/content-index.json` (fields: title, summary, tags, type; optional body preview).
   - Result types have icons and keyboard nav.
 
 # Schema Enhancements ([src/content/config.ts](cci:7://file:///home/netu/stephen-netu.github.io/src/content/config.ts:0:0-0:0))
@@ -120,11 +132,36 @@ Phase 5 — Visual polish
 
 # Optional Dependencies (later)
 - Map: Leaflet (optional, start without)
-- Search: Fuse.js
+- Search: MiniSearch (preferred). Optionally Pagefind (CLI) for full-text at build time.
 - Timeline: vis-timeline or pure CSS
+
+## Performance Budgets
+
+- JavaScript per page: target < 30 kB gz for typical pages; heavy widgets lazy-hydrated.
+- LCP: < 2.0s on fast 3G/low-end mobile; CLS < 0.1; TBT minimal.
+- Input delay on interactions (palette open, editor toggle): < 50 ms.
+- SW startup + first intercept: < 300 ms; search query latency: < 100 ms p95.
+
+## Decision Gates
+
+- If search index size > 1.5 MB gz or query p95 > 150 ms: evaluate WASM tokenization or switch to Pagefind.
+- If graph nodes > 2k or layout > 200 ms per incremental update: consider WASM layout or Tauri desktop for heavy views.
+- If timeline items > 1k with jank on scroll: paginate or virtualize.
+
+## Rollback & Safety
+
+- Feature flags to disable SW, search, or widgets (query string or localStorage toggles).
+- SW versioning and cache bust: `CACHE_Vx_y` names; on install, delete old caches; on activate, claim clients.
+- Offline guard rails: network-first for HTML; bypass SW for bots/crawlers.
+
+## Local Metrics
+
+- Use `performance.mark/measure` around: SW install/activate, first draft intercept, palette open, search query, editor toggle.
+- Emit custom events with timings to `localStorage` (rotating buffer) for manual inspection.
+- Log counts: SW updates, cache hits/misses, search query p95.
 
 # What I’ll do first (once you approve)
 - Implement Phase 1:
-  - Update [BaseLayout.astro](cci:7://file:///home/netu/stephen-netu.github.io/src/layouts/BaseLayout.astro:0:0-0:0) to AppShell (topbar nav + slots).
+  - Update [src/layouts/BaseLayout.astro](cci:7://file:///home/netu/stephen-netu.github.io/src/layouts/BaseLayout.astro:0:0-0:0) to AppShell (topbar nav + slots).
   - Redesign [index.astro](cci:7://file:///home/netu/stephen-netu.github.io/src/pages/index.astro:0:0-0:0) hero and portals.
   - Create `NoteCard.astro` and apply to home listing.

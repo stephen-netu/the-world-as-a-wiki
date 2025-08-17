@@ -63,6 +63,24 @@ Body text in Markdown.
 - `src/content/` — content collections config and notes
 - `public/` — static files copied as-is (favicon, robots)
 
+## Runtime contracts (client)
+
+- __Service Worker__ (`public/sw.js`)
+  - Caching: versioned caches, NavigationPreload, network-first HTML, SWR assets
+  - Messages: `{ type: 'sw:getVersion' | 'sw:metrics:get' | 'sw:skipWaiting' }`
+  - Events to page: `postMessage({ type: 'sw:activated' })` on activation
+- __Update banner__ (wired in `src/layouts/BaseLayout.astro`)
+  - Shows when `reg.waiting` exists after install; “Update” sends `sw:skipWaiting`; reload on `controllerchange`
+- __Perf counters__ (localStorage; lightweight)
+  - `palette.open.ms`: samples of cold-open time for search palette
+  - `search.ms`: rolling samples of query time; `search.p95.ms`: computed p95 in ms
+  - `widgets.init.ms`: samples of per-widget init times (lazy via IntersectionObserver)
+- __Feature flags__ (query string or localStorage key=value '1')
+  - `no-sw`, `no-widgets`, `no-search`
+- __Search gating thresholds__
+  - Palette cold-open < 150 ms; first query < 200 ms on mid device
+  - `public/content-index.json` < ~1.5 MB gz for ~5k notes; if exceeded or p95 > 200 ms → pivot to Pagefind/WASM
+
 ## Legacy TiddlyWiki
 
 - Original single-file wiki is kept at repo root as `the-world-as-wiki.html`.

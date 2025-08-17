@@ -144,6 +144,7 @@ const Content = await entry.render();
         if (!panel || !editBtn) return;
         panel.style.display = on ? '' : 'none';
         editBtn.setAttribute('aria-pressed', on ? 'true' : 'false');
+        try { performance.mark('editor:toggle'); } catch {}
         if (on) initEditor();
       }
       async function ensureMarked(){
@@ -221,8 +222,23 @@ const Content = await entry.render();
       }
       if (editBtn) editBtn.addEventListener('click', () => setEdit(panel && panel.style.display === 'none'));
       if (ta) ta.addEventListener('input', () => { renderPrev(ta.value); });
-      if (saveBtn) saveBtn.addEventListener('click', () => { saveDraft(buildFullMarkdown(ta.value)); });
-      if (revBtn) revBtn.addEventListener('click', async () => { clearDraft(); ta.value = originalBody(); await renderPrev(ta.value); });
+      if (saveBtn) saveBtn.addEventListener('click', () => {
+        const full = buildFullMarkdown(ta.value);
+        saveDraft(full);
+        try {
+          const ctrl = navigator.serviceWorker && navigator.serviceWorker.controller;
+          ctrl && ctrl.postMessage({ type: 'save-draft', payload: { slug: pageCtx.slug, markdown: full, updatedAt: Date.now() } });
+        } catch {}
+      });
+      if (revBtn) revBtn.addEventListener('click', async () => {
+        clearDraft();
+        try {
+          const ctrl = navigator.serviceWorker && navigator.serviceWorker.controller;
+          ctrl && ctrl.postMessage({ type: 'clear-draft', payload: { slug: pageCtx.slug } });
+        } catch {}
+        ta.value = originalBody();
+        await renderPrev(ta.value);
+      });
       if (expBtn) expBtn.addEventListener('click', () => {
         const blob = new Blob([buildFullMarkdown(ta.value)], { type: 'text/markdown;charset=utf-8' });
         const a = document.createElement('a');
@@ -238,13 +254,25 @@ const Content = await entry.render();
         ta.value = stripFrontmatter(text);
         await renderPrev(ta.value);
       });
+      function flagOn(name){ try { return localStorage.getItem(name) === '1'; } catch { return false; } }
       const widgets = document.querySelectorAll('.widget[data-widget]');
-      if (widgets.length) {
+      if (widgets.length && !flagOn('no-widgets')) {
+        const base = location.origin;
         const registry = {
-          'mini-map': () => import('/src/widgets/mini-map.ts'),
-          'mini-timeline': () => import('/src/widgets/mini-timeline.ts'),
-          'mini-graph': () => import('/src/widgets/mini-graph.ts'),
+          'mini-map': () => import(/* @vite-ignore */ (base + '/widgets/mini-map.js')),
+          'mini-timeline': () => import(/* @vite-ignore */ (base + '/widgets/mini-timeline.js')),
+          'mini-graph': () => import(/* @vite-ignore */ (base + '/widgets/mini-graph.js')),
         };
+        function recordWidgetMs(ms){
+          try {
+            const k = 'widgets.init.ms';
+            const v = localStorage.getItem(k);
+            const arr = v ? JSON.parse(v) : [];
+            arr.push(Math.max(0, Math.round(ms)));
+            while (arr.length > 50) arr.shift();
+            localStorage.setItem(k, JSON.stringify(arr));
+          } catch {}
+        }
         const io = new IntersectionObserver((entries, obs) => {
           entries.forEach(async (ent) => {
             if (!ent.isIntersecting) return;
@@ -253,10 +281,14 @@ const Content = await entry.render();
             const loader = registry[kind];
             if (!loader) { obs.unobserve(el); return; }
             try {
+              const t0 = (performance && performance.now) ? performance.now() : Date.now();
               const mod = await loader();
               const initFn = mod.default || mod.init;
               if (typeof initFn === 'function') {
+                try { performance.mark(`widget:init:${String(kind)}`); } catch {}
                 await initFn(el.querySelector('.widget-body'), pageCtx);
+                const t1 = (performance && performance.now) ? performance.now() : Date.now();
+                recordWidgetMs(Math.max(0, t1 - t0));
               }
             } catch (e) {
               console.error('Widget load failed', kind, e);
@@ -267,6 +299,21 @@ const Content = await entry.render();
           });
         }, { rootMargin: '200px 0px' });
         widgets.forEach(w => io.observe(w));
+      }
+    })();
+  </script>
+  <script>
+    // Minimal SW registration with idempotent guard
+    (function(){
+      if ('serviceWorker' in navigator) {
+        const KEY = 'lc.sw.registered';
+        try {
+          const disable = (localStorage.getItem('no-sw') === '1');
+          if (!sessionStorage.getItem(KEY) && !disable) {
+            navigator.serviceWorker.register('/sw.js').catch(()=>{});
+            sessionStorage.setItem(KEY, '1');
+          }
+        } catch {}
       }
     })();
   </script>
