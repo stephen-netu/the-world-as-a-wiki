@@ -1,0 +1,22 @@
+{
+  "ts": "2025-08-17T15:17:53.136Z",
+  "widgets": {
+    "mini-graph.js": {
+      "gz": 407
+    },
+    "mini-map.js": {
+      "gz": 1176
+    },
+    "mini-timeline.js": {
+      "gz": 1264
+    }
+  },
+  "index": {
+    "gz": 8182,
+    "bytes": 38743
+  },
+  "noteScripts": [],
+  "totals": {
+    "noteJsGz": 0
+  }
+}

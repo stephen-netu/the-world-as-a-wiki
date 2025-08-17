@@ -2,7 +2,7 @@
 
 Modern, contribution-friendly site powered by Astro with Markdown notes, backlinks, and an interactive graph.
 
-- Live site: https://stephen-netu.github.io/
+- Live site: https://stephen-netu.github.io/the-world-as-a-wiki/
 - Notes live in `src/content/notes/` as Markdown files with frontmatter
 - Interactive graph at `/graph`
 - Legacy TiddlyWiki available at `/legacy/`

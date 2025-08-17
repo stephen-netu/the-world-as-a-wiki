@@ -30,7 +30,7 @@
 
   <section class="card">
     <h2>Content Index</h2>
-    <div>URL: <code>/content-index.json</code></div>
+    <div>URL: <code id="indexUrl">content-index.json</code></div>
     <div>Size (bytes): <span id="indexBytes">-</span></div>
   </section>
 
@@ -49,6 +49,11 @@
 
   <script>
     (async function(){
+      const BASE = (function(){
+        // e.g., /the-world-as-a-wiki/metrics.html => /the-world-as-a-wiki/
+        const p = location.pathname;
+        return p.endsWith('.html') ? p.replace(/[^/]*$/, '') : (p.endsWith('/') ? p : p + '/');
+      })();
       function lsJson(key, fb){ try { const v = localStorage.getItem(key); return v ? JSON.parse(v) : fb; } catch { return fb; } }
       function setText(id, val){ const el = document.getElementById(id); if (el) el.textContent = String(val); }
       // Search p95 + samples
@@ -64,7 +69,9 @@
 
       // Index size (bytes)
       try {
-        const res = await fetch('/content-index.json', { cache: 'no-store' });
+        const url = BASE + 'content-index.json';
+        const urlEl = document.getElementById('indexUrl'); if (urlEl) urlEl.textContent = url;
+        const res = await fetch(url, { cache: 'no-store' });
         const buf = await res.arrayBuffer();
         setText('indexBytes', new Uint8Array(buf).length);
       } catch {}

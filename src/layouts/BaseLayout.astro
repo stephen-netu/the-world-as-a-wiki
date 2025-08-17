@@ -8,17 +8,17 @@ const { title = 'The World (as Wiki)', description = 'An explorable world of not
     <meta name="viewport" content="width=device-width, initial-scale=1" />
     <title>{title}</title>
     <meta name="description" content={description} />
-    <link rel="icon" href="/favicon.svg" />
+    <link rel="icon" href={new URL('favicon.svg', Astro.site).pathname} />
   </head>
   <body>
     <header class="site-header">
-      <a class="brand" href="/">A Paracosm: the World</a>
+      <a class="brand" href={new URL('', Astro.site).pathname}>A Paracosm: the World</a>
       <nav class="primary-nav">
-        <a href="/atlas/">Atlas</a>
-        <a href="/timeline/">Timeline</a>
-        <a href="/codex/">Codex</a>
-        <a href="/characters/">Characters</a>
-        <a href="/graph">Graph</a>
+        <a href={new URL('atlas/', Astro.site).pathname}>Atlas</a>
+        <a href={new URL('timeline/', Astro.site).pathname}>Timeline</a>
+        <a href={new URL('codex/', Astro.site).pathname}>Codex</a>
+        <a href={new URL('characters/', Astro.site).pathname}>Characters</a>
+        <a href={new URL('graph', Astro.site).pathname}>Graph</a>
       </nav>
       <div style="display:flex; gap:8px; align-items:center">
         <button id="palette-trigger" class="ghost-btn" title="Search (Ctrl/⌘+K)">🔎</button>
@@ -34,17 +34,17 @@ const { title = 'The World (as Wiki)', description = 'An explorable world of not
         <div>
           <strong>Explore</strong>
           <div class="footer-nav">
-            <a href="/atlas/">Atlas</a>
-            <a href="/timeline/">Timeline</a>
-            <a href="/codex/">Codex</a>
-            <a href="/characters/">Characters</a>
-            <a href="/graph">Graph</a>
+            <a href={new URL('atlas/', Astro.site).pathname}>Atlas</a>
+            <a href={new URL('timeline/', Astro.site).pathname}>Timeline</a>
+            <a href={new URL('codex/', Astro.site).pathname}>Codex</a>
+            <a href={new URL('characters/', Astro.site).pathname}>Characters</a>
+            <a href={new URL('graph', Astro.site).pathname}>Graph</a>
           </div>
         </div>
         <div>
           <strong>Power User Tools</strong>
           <div class="footer-nav">
-            <a href="/tags/">Tags</a>
+            <a href={new URL('tags/', Astro.site).pathname}>Tags</a>
           </div>
         </div>
         <div>
@@ -73,6 +73,7 @@ const { title = 'The World (as Wiki)', description = 'An explorable world of not
       <button id="sw-update-dismiss" class="ghost-btn" aria-label="Dismiss update notification">Dismiss</button>
     </div>
 
+    <script type="module">window.__BASE_URL__ = import.meta.env.BASE_URL || '/';</script>
     <script>
       (function() {
         // --- Feature Flags ---
@@ -130,6 +131,7 @@ const { title = 'The World (as Wiki)', description = 'An explorable world of not
         }
 
         // --- Global Search Palette (Ctrl/Cmd + K) ---
+        const BASE = (window.__BASE_URL__ || '/');
         if (!flags.noSearch) {
           const palette = document.getElementById('palette');
           const input = document.getElementById('palette-input');
@@ -194,7 +196,7 @@ const { title = 'The World (as Wiki)', description = 'An explorable world of not
               return out;
             }
             results.innerHTML = list.slice(0, 50).map((n, i) => `
-              <a data-idx="${i}" href="/notes/${n.slug}/" class="result" style="display:block; padding:10px 12px; border-bottom:1px solid #161b28; text-decoration:none; color:inherit">
+              <a data-idx="${i}" href="${BASE}notes/${n.slug}/" class="result" style="display:block; padding:10px 12px; border-bottom:1px solid #161b28; text-decoration:none; color:inherit">
                 <div style="font-weight:600">${mark(n.title||n.slug)}</div>
                 <div style="opacity:0.75; font-size:0.9rem">${(n.tags||[]).map(t=>`<span class=tag>${mark(String(t))}</span>`).join(' ')}${n.excerpt?` — ${mark(n.excerpt)}`:''}</div>
               </a>`).join('');
@@ -215,7 +217,7 @@ const { title = 'The World (as Wiki)', description = 'An explorable world of not
           async function ensureIndex(){
             if (index) return index;
             if (!data) {
-              const resp = await fetch('/content-index.json');
+              const resp = await fetch(BASE + 'content-index.json');
               const json = await resp.json();
               // shrink to minimal fields for palette
               data = json.map((n)=>({ slug:n.slug, title:n.title, tags:n.tags||[], excerpt:n.excerpt||'' }));
@@ -299,17 +301,16 @@ const { title = 'The World (as Wiki)', description = 'An explorable world of not
               }
             }
           };
-          document.addEventListener('keydown', keydownHandler, { passive:false });
-          document.addEventListener('keydown', focusTrap, { passive:false });
-          const debounced = debounce(()=> doSearch(input.value.trim()), 80);
-          input?.addEventListener('input', debounced);
-          backdrop?.addEventListener('click', closePalette);
-          // Header trigger button
-          const headerBtn = document.getElementById('palette-trigger');
-          headerBtn?.addEventListener('click', (e)=>{ e.preventDefault(); openPalette(); });
-        }
-      })();
- 
+            document.addEventListener('keydown', keydownHandler, { passive:false });
+            document.addEventListener('keydown', focusTrap, { passive:false });
+            const debounced = debounce(()=> doSearch(input.value.trim()), 80);
+            input?.addEventListener('input', debounced);
+            backdrop?.addEventListener('click', closePalette);
+            // Header trigger button
+            const headerBtn = document.getElementById('palette-trigger');
+            headerBtn?.addEventListener('click', (e)=>{ e.preventDefault(); openPalette(); });
+          }
+        })();
 
           // --- Service Worker registration & update banner ---
           (function(){
@@ -337,7 +338,7 @@ const { title = 'The World (as Wiki)', description = 'An explorable world of not
               if (reg.waiting) { showBanner(); wireBanner(reg); }
             }
             window.addEventListener('load', ()=>{
-              navigator.serviceWorker.register('/sw.js').then((reg)=>{
+              navigator.serviceWorker.register((window.__BASE_URL__||'/') + 'sw.js').then((reg)=>{
                 maybePrompt(reg);
                 reg.addEventListener('updatefound', ()=>{
                   const nw = reg.installing;
