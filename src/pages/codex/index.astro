@@ -7,11 +7,11 @@ import BaseLayout from "../../layouts/BaseLayout.astro";
     <p>Browse the world by category. This is your central library of entities, places, artifacts, lore, and stories.</p>
   </section>
   <section class="grid" style="margin-bottom:1rem">
-    <a class="portal" href="/characters/">👥 Characters</a>
-    <a class="portal" href="/atlas/">🗺️ Places</a>
-    <a class="portal" href="/timeline/">🕰️ Eras & Events</a>
-    <a class="portal" href="/graph">🕸️ Relationships</a>
-    <a class="portal" href="/notes/">📚 All Notes</a>
+    <a class="portal" href={new URL('characters/', Astro.site).pathname}>👥 Characters</a>
+    <a class="portal" href={new URL('atlas/', Astro.site).pathname}>🗺️ Places</a>
+    <a class="portal" href={new URL('timeline/', Astro.site).pathname}>🕰️ Eras & Events</a>
+    <a class="portal" href={new URL('graph', Astro.site).pathname}>🕸️ Relationships</a>
+    <a class="portal" href={new URL('notes/', Astro.site).pathname}>📚 All Notes</a>
   </section>
   <section class="card">
     <h3>Coming Soon</h3>

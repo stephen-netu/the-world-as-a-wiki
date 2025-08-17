@@ -21,14 +21,14 @@ notes.sort((a, b) => (a.data.title || '').localeCompare(b.data.title || ''));
 <BaseLayout title={`${decoded} — Tags — The World (as Wiki)`}>
   <article class="card">
     <h1>Tag: {decoded}</h1>
-    <p><a href="/tags/">← All tags</a></p>
+    <p><a href={new URL('tags/', Astro.site).pathname}>← All tags</a></p>
     {notes.length === 0 ? (
       <p>No notes yet for this tag.</p>
     ) : (
       <ul>
         {notes.map(n => (
           <li>
-            <a href={`/notes/${n.slug}/`}>{n.data.title}</a>
+            <a href={new URL(`notes/${n.slug}/`, Astro.site).pathname}>{n.data.title}</a>
           </li>
         ))}
       </ul>

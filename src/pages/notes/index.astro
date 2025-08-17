@@ -29,10 +29,11 @@ const summary = notes.map(n=>({ slug:n.slug, title:n.data.title, description:n.d
     const data = JSON.parse(document.getElementById('notes-data').textContent);
     const search = document.getElementById('search');
     const results = document.getElementById('results');
+    const BASE = (window.__BASE_URL__ || '/');
     const render = (list) => {
       results.innerHTML = list.map(n => `
         <article class="card">
-          <h3><a href="/notes/${n.slug}/">${n.title}</a></h3>
+          <h3><a href="${BASE}notes/${n.slug}/">${n.title}</a></h3>
           ${n.date ? `<div class="note-meta">${n.date}</div>` : ''}
           ${n.description ? `<p>${n.description}</p>` : ''}
           <div>${(n.tags||[]).map(t=>`<span class="tag">${t}</span>`).join(' ')}</div>

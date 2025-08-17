@@ -20,11 +20,11 @@ const summary = notes.map(n=>({ slug:n.slug, title:n.data.title, description:n.d
       <div class="tagline">Greetings, welcome to Haven.</div>
     </div>
     <div class="portals">
-      <a class="portal" href="/atlas/">🗺️ Enter the Atlas</a>
-      <a class="portal" href="/timeline/">🕰️ View the Timeline</a>
-      <a class="portal" href="/codex/">📖 Open the Codex</a>
-      <a class="portal" href="/characters/">👥 Meet the Characters</a>
-      <a class="portal" href="/graph">🕸️ Explore the Graph</a>
+      <a class="portal" href={new URL('atlas/', Astro.site).pathname}>🗺️ Enter the Atlas</a>
+      <a class="portal" href={new URL('timeline/', Astro.site).pathname}>🕰️ View the Timeline</a>
+      <a class="portal" href={new URL('codex/', Astro.site).pathname}>📖 Open the Codex</a>
+      <a class="portal" href={new URL('characters/', Astro.site).pathname}>👥 Meet the Characters</a>
+      <a class="portal" href={new URL('graph', Astro.site).pathname}>🕸️ Explore the Graph</a>
       <button id="random-note" class="portal" style="text-align:left; cursor:pointer;">🎲 Take me somewhere</button>
     </div>
     <input id="search" class="input" placeholder="Search notes and tags…" />
@@ -42,10 +42,11 @@ const summary = notes.map(n=>({ slug:n.slug, title:n.data.title, description:n.d
     const search = document.getElementById('search');
     const results = document.getElementById('results');
     const randomBtn = document.getElementById('random-note');
+    const BASE = (window.__BASE_URL__ || '/');
     const render = (list) => {
       results.innerHTML = list.slice(0, 48).map(n => `
         <article class="card">
-          <h3><a href="/notes/${n.slug}/">${n.title}</a></h3>
+          <h3><a href="${BASE}notes/${n.slug}/">${n.title}</a></h3>
           ${n.date ? `<div class="note-meta">${n.date}</div>` : ''}
           ${n.description ? `<p>${n.description}</p>` : ''}
           <div>${(n.tags||[]).map(t=>`<span class="tag">${t}</span>`).join(' ')}</div>
@@ -64,7 +65,7 @@ const summary = notes.map(n=>({ slug:n.slug, title:n.data.title, description:n.d
     randomBtn?.addEventListener('click', () => {
       if (!data.length) return;
       const pick = data[Math.floor(Math.random() * data.length)];
-      window.location.href = `/notes/${pick.slug}/`;
+      window.location.href = BASE + 'notes/' + pick.slug + '/';
     });
   </script>
 </BaseLayout>

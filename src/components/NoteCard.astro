@@ -15,7 +15,7 @@ const toISO = (d: unknown) => {
 };
 ---
 <article class="card">
-  <h3><a href={`/notes/${slug}/`}>{title}</a></h3>
+  <h3><a href={new URL(`notes/${slug}/`, Astro.site).pathname}>{title}</a></h3>
   {date && <div class="note-meta">{toISO(date)}</div>}
   {description && <p>{description}</p>}
   <div>

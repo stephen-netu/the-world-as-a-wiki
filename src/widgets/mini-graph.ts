@@ -10,7 +10,8 @@ export default function init(el: HTMLElement, ctx: any) {
   (p.style as any).fontSize = '0.9rem';
   const count = Array.isArray(ctx?.links) ? ctx.links.length : 0;
   const slug = typeof ctx?.slug === 'string' ? ctx.slug : '';
-  p.innerHTML = `Connections: <strong>${count}</strong> (open full <a href="/graph?focus=${encodeURIComponent(slug)}">Graph</a>)`;
+  const BASE = (window as any).__BASE_URL__ || '/';
+  p.innerHTML = `Connections: <strong>${count}</strong> (open full <a href="${BASE}graph?focus=${encodeURIComponent(slug)}">Graph</a>)`;
   wrap.appendChild(p);
   el.replaceChildren(wrap);
 }
