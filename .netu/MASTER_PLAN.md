@@ -31,6 +31,31 @@ We’ll choose the simplest, fastest architecture that delivers offline-first dr
 - __Search decision gate__: monitor `search.p95.ms` and `public/content-index.json` size; prep Pagefind/WASM fallback if thresholds are exceeded.
 - __Docs__: capture SW message contract and perf counters in `README.md` for maintainers.
 
+## Delightful UX (search + runtime)
+- __Palette__
+  - ARIA dialog semantics (`role="dialog"`, `aria-modal`, labeled title).
+  - Focus trap; Esc to close; Ctrl/Cmd+K to open; Ctrl/Cmd+N/P to move selection; arrows + Enter to navigate; Shift+Enter opens in a new tab.
+  - Debounced input (≈80 ms) to keep keystrokes snappy on mid devices.
+  - Recent searches list (persisted in `localStorage['search.recent']`, capped to 10).
+  - Tag filters via `#tag` tokens; remaining terms full-text via MiniSearch.
+  - Match highlighting across title, tags, excerpt.
+  - Perf counters: `palette.open.ms` (first open), `search.ms` samples, `search.p95.ms`, plus rolling `search.p95.hist` (≤60 entries).
+- __SW Update banner__
+  - `role="alert"`, `aria-live="assertive"`, focus management to Update button; Esc dismiss.
+
+## Runtime Tools
+- `/metrics.html` public viewer
+  - Displays `search.p95.ms`, history table from `search.p95.hist`, live `content-index.json` size, SW version, and SW metrics via message API.
+  - Export button downloads a runtime snapshot JSON for ad-hoc tracking.
+
+## CI Budgets (enforced)
+- `scripts/audit-budgets.mjs` checks gz sizes and fails build when exceeded:
+  - Widgets each < 2 KB gz (`public/widgets/*.js`).
+  - Typical note page JS total < 30 KB gz.
+  - `public/content-index.json` < ~1.5 MB gz.
+- GitHub Actions runs: install → build → audit → upload.
+- `scripts/snapshot-metrics.mjs` emits `backups/metrics-YYYYMMDD-HHMM.json` on each build for longitudinal tracking.
+
 ## Stable Contracts (portable across stacks)
 - __Content__: Markdown + YAML frontmatter in `content/notes/`.
 - __Index__: `public/content-index.json` schema:

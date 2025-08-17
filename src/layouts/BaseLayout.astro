@@ -53,11 +53,11 @@ const { title = 'The World (as Wiki)', description = 'An explorable world of not
       </div>
     </footer>
     <!-- Global Search Palette -->
-    <div id="palette" style="display:none; position:fixed; inset:0; z-index:1000;">
+    <div id="palette" role="dialog" aria-modal="true" aria-labelledby="palette-title" style="display:none; position:fixed; inset:0; z-index:1000;">
       <div id="palette-backdrop" style="position:absolute; inset:0; background:rgba(0,0,0,0.5)"></div>
       <div style="position:absolute; left:50%; top:15%; transform:translateX(-50%); width:min(720px,92vw); background:#0e1220; border:1px solid #222733; border-radius:10px; box-shadow:0 10px 30px rgba(0,0,0,0.5); overflow:hidden">
         <div style="padding:10px; border-bottom:1px solid #222733; display:flex; gap:8px; align-items:center">
-          <span style="opacity:0.7">⌘/Ctrl K</span>
+          <span id="palette-title" style="opacity:0.7">⌘/Ctrl K</span>
           <input id="palette-input" class="input" placeholder="Search notes and tags…" style="flex:1; background:#0a0d17; border:1px solid #1a2030" />
         </div>
         <div id="palette-results" style="max-height:min(60vh,600px); overflow:auto">
@@ -140,6 +140,21 @@ const { title = 'The World (as Wiki)', description = 'An explorable world of not
           let index = null; // MiniSearch instance
           let hotOpen = false;
           let indexReady = false;
+          let lastQuery = '';
+
+          // --- Small utils ---
+          function debounce(fn, ms){ let t; return (...a)=>{ clearTimeout(t); t=setTimeout(()=>fn(...a), ms); } }
+          function recentGet(){ try { return JSON.parse(localStorage.getItem('search.recent')||'[]'); } catch { return []; } }
+          function recentPush(q){ if (!q) return; const arr = recentGet().filter(x=>x!==q); arr.unshift(q); while (arr.length>10) arr.pop(); try { localStorage.setItem('search.recent', JSON.stringify(arr)); } catch {} }
+          function getResultNodes(){ return results?.querySelectorAll('.result'); }
+          function focusTrap(e){
+            if (e.key !== 'Tab' || palette?.style.display !== 'block') return;
+            const nodes = getResultNodes();
+            const first = input, last = nodes && nodes[nodes.length-1];
+            if (!last) return; // default if no results
+            if (!e.shiftKey && document.activeElement === last) { e.preventDefault(); input?.focus(); }
+            if (e.shiftKey && document.activeElement === input) { e.preventDefault(); last.focus(); }
+          }
 
           function openPalette() {
             if (!palette) return;
@@ -147,21 +162,41 @@ const { title = 'The World (as Wiki)', description = 'An explorable world of not
             palette.style.display = 'block';
             setTimeout(() => input && input.focus(), 0);
             if (!hotOpen) { hotOpen = true; void ensureIndex(); }
+            // Show recent if any and no query
+            if (!input.value.trim()) {
+              const rec = recentGet();
+              if (rec.length) {
+                results.innerHTML = '<div style="padding:12px; opacity:0.7">Recent</div>' + rec.map((q,i)=>`
+                  <a data-idx="${i}" data-q="${q.replace(/"/g,'&quot;')}" href="#" class="result" style="display:block; padding:10px 12px; border-bottom:1px solid #161b28; text-decoration:none; color:inherit">
+                    <div style="font-weight:600">${escapeHtml(q)}</div>
+                  </a>`).join('');
+                selIndex = 0; highlight();
+                results.querySelectorAll('.result')?.forEach(el=>{
+                  el.addEventListener('click', (ev)=>{ ev.preventDefault(); input.value = el.getAttribute('data-q')||''; doSearch(input.value.trim()); });
+                });
+              }
+            }
           }
           function closePalette() {
             if (!palette) return;
             palette.style.display = 'none';
           }
-          function render(list) {
+          function render(list, q) {
             if (!results) return;
             if (!list || list.length === 0) {
               results.innerHTML = '<div style="padding:12px; opacity:0.7">No results</div>';
               return;
             }
+            const terms = (q||'').toLowerCase().split(/\s+/).filter(Boolean);
+            function mark(s){
+              let out = escapeHtml(s||'');
+              terms.forEach(t=>{ try { out = out.replace(new RegExp('('+t.replace(/[.*+?^${}()|[\\]\\]/g,'\\$&')+')','ig'), '<mark>$1</mark>'); } catch {} });
+              return out;
+            }
             results.innerHTML = list.slice(0, 50).map((n, i) => `
               <a data-idx="${i}" href="/notes/${n.slug}/" class="result" style="display:block; padding:10px 12px; border-bottom:1px solid #161b28; text-decoration:none; color:inherit">
-                <div style="font-weight:600">${escapeHtml(n.title||n.slug)}</div>
-                <div style="opacity:0.75; font-size:0.9rem">${(n.tags||[]).map(t=>`<span class=tag>${escapeHtml(t)}</span>`).join(' ')}${n.excerpt?` — ${escapeHtml(n.excerpt)}`:''}</div>
+                <div style="font-weight:600">${mark(n.title||n.slug)}</div>
+                <div style="opacity:0.75; font-size:0.9rem">${(n.tags||[]).map(t=>`<span class=tag>${mark(String(t))}</span>`).join(' ')}${n.excerpt?` — ${mark(n.excerpt)}`:''}</div>
               </a>`).join('');
             selIndex = 0; highlight();
           }
@@ -212,9 +247,14 @@ const { title = 'The World (as Wiki)', description = 'An explorable world of not
           }
           async function doSearch(q){
             if (!q) { render([]); return; }
+            lastQuery = q;
             const idx = await ensureIndex();
+            // Support tag filters via #tag tokens (prefilter data, then search remaining terms)
+            const tags = (q.match(/#\w+/g)||[]).map(s=>s.slice(1).toLowerCase());
+            const qRest = q.replace(/#\w+/g,'').trim();
+            const base = tags.length ? data.filter(n=>tags.every(t=> (n.tags||[]).map(x=>String(x).toLowerCase()).includes(t))) : data;
             const s0 = (performance && performance.now) ? performance.now() : Date.now();
-            const res = idx.search(q).map(r=>({ slug:r.id, title:r.title, tags:r.tags, excerpt:r.excerpt }));
+            const res = qRest ? (idx.search(qRest).map(r=>({ slug:r.id, title:r.title, tags:r.tags, excerpt:r.excerpt }))) : base;
             const s1 = (performance && performance.now) ? performance.now() : Date.now();
             const ms = Math.max(0, s1 - s0);
             // update search samples and p95
@@ -231,7 +271,7 @@ const { title = 'The World (as Wiki)', description = 'An explorable world of not
                 localStorage.setItem('search.p95.hist', JSON.stringify(hist));
               } catch {}
             } catch {}
-            render(res);
+            render(res, q);
           }
           let keydownHandler = (e) => {
             const isMac = navigator.platform.toUpperCase().includes('MAC');
@@ -241,16 +281,28 @@ const { title = 'The World (as Wiki)', description = 'An explorable world of not
             }
             if (palette && palette.style.display === 'block') {
               if (e.key === 'Escape') { e.preventDefault(); closePalette(); return; }
-              if (e.key === 'ArrowDown') { e.preventDefault(); selIndex = Math.min(selIndex+1, (results?.querySelectorAll('.result')?.length||1)-1); highlight(); return; }
-              if (e.key === 'ArrowUp') { e.preventDefault(); selIndex = Math.max(selIndex-1, 0); highlight(); return; }
+              if (e.key === 'ArrowDown' || (mod && (e.key === 'n' || e.key === 'N'))) { e.preventDefault(); selIndex = Math.min(selIndex+1, (results?.querySelectorAll('.result')?.length||1)-1); highlight(); return; }
+              if (e.key === 'ArrowUp' || (mod && (e.key === 'p' || e.key === 'P'))) { e.preventDefault(); selIndex = Math.max(selIndex-1, 0); highlight(); return; }
               if (e.key === 'Enter') {
                 const sel = results?.querySelectorAll('.result')?.[selIndex];
-                if (sel) { sel.click(); }
+                if (sel) {
+                  if (sel.hasAttribute('data-q')) { input.value = sel.getAttribute('data-q')||''; doSearch(input.value.trim()); return; }
+                  recentPush(lastQuery || input.value.trim());
+                  // Shift+Enter opens in a new tab; Enter navigates in-place
+                  const href = sel.getAttribute('href');
+                  if (e.shiftKey && href) {
+                    try { window.open(href, '_blank', 'noopener'); } catch { sel.click(); }
+                  } else {
+                    sel.click();
+                  }
+                }
               }
             }
           };
           document.addEventListener('keydown', keydownHandler, { passive:false });
-          input?.addEventListener('input', ()=> doSearch(input.value.trim()));
+          document.addEventListener('keydown', focusTrap, { passive:false });
+          const debounced = debounce(()=> doSearch(input.value.trim()), 80);
+          input?.addEventListener('input', debounced);
           backdrop?.addEventListener('click', closePalette);
           // Header trigger button
           const headerBtn = document.getElementById('palette-trigger');

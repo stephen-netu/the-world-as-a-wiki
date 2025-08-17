@@ -1,0 +1,105 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="utf-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1" />
+  <title>Runtime Metrics</title>
+  <style>
+    body { font-family: system-ui, -apple-system, Segoe UI, Roboto, sans-serif; background:#0b0f1a; color:#e5e7eb; margin:20px; }
+    code { background:#111727; padding:2px 6px; border-radius:6px; }
+    section { margin-bottom:24px; }
+    .card { background:#0e1220; border:1px solid #1d2332; border-radius:12px; padding:16px; }
+    button { background:#111727; color:#e5e7eb; border:1px solid #1d2332; border-radius:8px; padding:8px 12px; cursor:pointer; }
+    table { width:100%; border-collapse: collapse; }
+    th, td { text-align:left; padding:6px 8px; border-bottom:1px solid #1a2030; }
+  </style>
+</head>
+<body>
+  <h1>Runtime Metrics</h1>
+  <p>Quick view of search and service worker metrics, and index size. Use the Export button to download a JSON snapshot for trend tracking.</p>
+
+  <section class="card">
+    <h2>Search</h2>
+    <div>p95 (ms): <span id="p95">-</span></div>
+    <div>Samples (search.ms): <span id="samplesLen">0</span></div>
+    <details>
+      <summary>Rolling history (search.p95.hist)</summary>
+      <table id="histTable"><thead><tr><th>Time</th><th>p95 (ms)</th></tr></thead><tbody></tbody></table>
+    </details>
+  </section>
+
+  <section class="card">
+    <h2>Content Index</h2>
+    <div>URL: <code>/content-index.json</code></div>
+    <div>Size (bytes): <span id="indexBytes">-</span></div>
+  </section>
+
+  <section class="card">
+    <h2>Service Worker</h2>
+    <div>Version: <span id="swVersion">-</span></div>
+    <details>
+      <summary>Metrics (from SW)</summary>
+      <pre id="swMetrics" style="white-space:pre-wrap"></pre>
+    </details>
+  </section>
+
+  <section class="card">
+    <button id="exportBtn">Export snapshot JSON</button>
+  </section>
+
+  <script>
+    (async function(){
+      function lsJson(key, fb){ try { const v = localStorage.getItem(key); return v ? JSON.parse(v) : fb; } catch { return fb; } }
+      function setText(id, val){ const el = document.getElementById(id); if (el) el.textContent = String(val); }
+      // Search p95 + samples
+      const samples = lsJson('search.ms', []);
+      const p95 = Number(localStorage.getItem('search.p95.ms') || '0');
+      setText('p95', p95);
+      setText('samplesLen', samples.length);
+      const hist = lsJson('search.p95.hist', []);
+      const tbody = document.querySelector('#histTable tbody');
+      if (tbody && Array.isArray(hist)) {
+        tbody.innerHTML = hist.map(h=>`<tr><td>${new Date(h.ts).toLocaleString()}</td><td>${h.p95}</td></tr>`).join('');
+      }
+
+      // Index size (bytes)
+      try {
+        const res = await fetch('/content-index.json', { cache: 'no-store' });
+        const buf = await res.arrayBuffer();
+        setText('indexBytes', new Uint8Array(buf).length);
+      } catch {}
+
+      // SW version + metrics
+      if ('serviceWorker' in navigator && navigator.serviceWorker.controller) {
+        const chan = new MessageChannel();
+        const ask = (type) => new Promise((resolve)=>{
+          const { port1, port2 } = new MessageChannel();
+          port1.onmessage = (e)=> resolve(e.data);
+          try { navigator.serviceWorker.controller.postMessage({ type }, [port2]); } catch { resolve(null); }
+        });
+        const ver = await ask('sw:getVersion');
+        setText('swVersion', ver?.version || 'n/a');
+        const metrics = await ask('sw:metrics:get');
+        const pre = document.getElementById('swMetrics');
+        if (pre) pre.textContent = metrics ? JSON.stringify(metrics, null, 2) : 'n/a';
+      }
+
+      // Export snapshot
+      document.getElementById('exportBtn')?.addEventListener('click', async ()=>{
+        const snapshot = {
+          ts: new Date().toISOString(),
+          search: { p95, samplesLen: samples.length, hist },
+          index: { bytes: Number(document.getElementById('indexBytes')?.textContent || '0') },
+          sw: { version: document.getElementById('swVersion')?.textContent || 'n/a' }
+        };
+        const blob = new Blob([JSON.stringify(snapshot, null, 2)], { type: 'application/json' });
+        const a = document.createElement('a');
+        a.href = URL.createObjectURL(blob);
+        a.download = `metrics-runtime-${new Date().toISOString().replace(/[:.]/g,'-')}.json`;
+        a.click();
+        setTimeout(()=> URL.revokeObjectURL(a.href), 1000);
+      });
+    })();
+  </script>
+</body>
+</html>
