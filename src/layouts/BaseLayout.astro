@@ -73,7 +73,7 @@ const { title = 'The World (as Wiki)', description = 'An explorable world of not
       <button id="sw-update-dismiss" class="ghost-btn" aria-label="Dismiss update notification">Dismiss</button>
     </div>
 
-    <script type="module">window.__BASE_URL__ = import.meta.env.BASE_URL || '/';</script>
+    <script>window.__BASE_URL__ = "{new URL('', Astro.site).pathname}";</script>
     <script>
       (function() {
         // --- Feature Flags ---
