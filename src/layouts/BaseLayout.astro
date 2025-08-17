@@ -10,7 +10,7 @@ const { title = 'The World (as Wiki)', description = 'An explorable world of not
     <meta name="description" content={description} />
     <link rel="icon" href={new URL('favicon.svg', Astro.site).pathname} />
   </head>
-  <body>
+  <body data-base={new URL('', Astro.site).pathname}>
     <header class="site-header">
       <a class="brand" href={new URL('', Astro.site).pathname}>A Paracosm: the World</a>
       <nav class="primary-nav">
@@ -73,7 +73,7 @@ const { title = 'The World (as Wiki)', description = 'An explorable world of not
       <button id="sw-update-dismiss" class="ghost-btn" aria-label="Dismiss update notification">Dismiss</button>
     </div>
 
-    <script type="module">window.__BASE_URL__ = import.meta.env.BASE_URL || '/';</script>
+    <script>window.__BASE_URL__ = (document.body && document.body.dataset && document.body.dataset.base) || '/';</script>
     <script>
       (function() {
         // --- Feature Flags ---
